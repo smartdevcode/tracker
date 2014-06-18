@@ -83,9 +83,11 @@ class ServiceProvider extends IlluminateServiceProvider {
      */
     public function register()
     {
-	    $this->startSession();
+        // Unfortunately, we are stuck with PHP session, because
+        // Laravel's Session ID changes every time user logs in.
+        session_start();
 
-	    $this->registerConfig();
+        $this->registerConfig();
 
         $this->registerAuthentication();
 
@@ -455,17 +457,6 @@ class ServiceProvider extends IlluminateServiceProvider {
 			$me->app['tracker.events']->turnOn();
 		});
 
-	}
-
-	private function startSession()
-	{
-		// Unfortunately, we are stuck with PHP session, because
-		// Laravel's Session ID changes every time user logs in.
-
-		if (session_status() == PHP_SESSION_NONE)
-		{
-			session_start();
-		}
 	}
 
 }
