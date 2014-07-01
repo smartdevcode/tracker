@@ -122,7 +122,9 @@ $pageViews = Tracker::pageViewsByCountry(60 * 24);
 
 ![errors](https://raw.githubusercontent.com/antonioribeiro/acr.com/master/public/assets/layouts/admin/img/screenshots/errors.png)
 
-**Those views are not available in this package, only the class methods used to gather this information is provided, but I'm planning to publish them in another repository.**
+## Views
+
+The views above are available in this package, but you need to install the `sb-admin` panel on your public folder, please look at the instructions below.
 
 ## Tables
 
