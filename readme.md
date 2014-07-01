@@ -122,11 +122,7 @@ $pageViews = Tracker::pageViewsByCountry(60 * 24);
 
 ![errors](https://raw.githubusercontent.com/antonioribeiro/acr.com/master/public/assets/layouts/admin/img/screenshots/errors.png)
 
-## Views
-
-The views above are not available in this package, only the class methods used to gather this information is provided, but I'm planning to publish them in another repository.
-
-But they exist! If you would like to use them, the way they are now, here's a gist with enough information to get them: [Laravel Stats Tracker Views](https://gist.github.com/antonioribeiro/223f661d012b458ab13f) 
+**Those views are not available in this package, only the class methods used to gather this information is provided, but I'm planning to publish them in another repository.**
 
 ## Tables
 
@@ -467,6 +463,17 @@ And ignore this connection for SQL queries logging:
 	),
 
 You don't need to use a different database, but, since Tracker may generate a huge number of records, this would be a good practice.
+
+## Stats Panel
+
+To use the stats panel on your website you'll need to download the sb-admin 2 sources to your public folder:
+ 
+    wget --output-document=/tmp/sba2.zip http://startbootstrap.com/downloads/sb-admin-v2.zip
+    unzip /tmp/sba2.zip -d public/templates/
+
+And enabled in your config file:
+
+	'stats_panel_enabled' => true,
 
 ## Author
 
