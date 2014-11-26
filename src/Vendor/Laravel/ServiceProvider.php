@@ -71,7 +71,7 @@ class ServiceProvider extends PragmaRXServiceProvider {
 	    {
 		    $this->package($this->packageNamespace, $this->packageNamespace, __DIR__.'/../..');
 
-		    if ( $this->app['config']->get($this->packageNamespace.'::create_tracker_alias') )
+		    if( $this->app['config']->get($this->packageNamespace.'::create_tracker_alias') )
 		    {
 			    IlluminateAliasLoader::getInstance()->alias(
 				    $this->getConfig('tracker_alias'),
@@ -94,7 +94,7 @@ class ServiceProvider extends PragmaRXServiceProvider {
      */
     public function register()
     {
-	    $this->preRegister();
+	    parent::register();
 
 	    $this->registerConfig();
 
