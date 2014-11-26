@@ -64,7 +64,7 @@ $sessions = Tracker::sessions(60 * 24); // get sessions (visits) from the past d
 ```
 
 ```
-foreach($sessions as $session)
+foreach ($sessions as $session)
 {
     var_dump( $session->user->email );
 
@@ -74,7 +74,7 @@ foreach($sessions as $session)
 
     var_dump( $session->geoIp->country_name );
 
-    foreach($session->session->log as $log)
+    foreach ($session->session->log as $log)
     {
     	var_dump( $log->path );
     }
@@ -439,6 +439,10 @@ And execute
 Add the service provider to your app/config/app.php:
 
     'PragmaRX\Tracker\Vendor\Laravel\ServiceProvider',
+
+Add the alias to the facade on your app/config/app.php:
+
+    'Tracker' => 'PragmaRX\Tracker\Vendor\Laravel\Facade',
 
 Publish tracker configuration:
 
