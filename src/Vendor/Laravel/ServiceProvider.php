@@ -10,7 +10,7 @@ use PragmaRX\Tracker\Tracker;
 
 use PragmaRX\Tracker\Services\Authentication;
 
-use PragmaRX\Support\Config;
+use PragmaRX\Tracker\Support\Config;
 use PragmaRX\Tracker\Support\MobileDetect;
 use PragmaRX\Tracker\Support\UserAgentParser;
 use PragmaRX\Support\ServiceProvider as PragmaRXServiceProvider;
@@ -43,6 +43,8 @@ use PragmaRX\Tracker\Vendor\Laravel\Artisan\UpdateParser as UpdateParserCommand;
 
 use PragmaRX\Support\GeoIp;
 
+use Illuminate\Foundation\AliasLoader as IlluminateAliasLoader;
+
 class ServiceProvider extends PragmaRXServiceProvider {
 
 	protected $packageVendor = 'pragmarx';
@@ -65,15 +67,23 @@ class ServiceProvider extends PragmaRXServiceProvider {
      */
     public function boot()
     {
-	    parent::boot();
-
 	    if ($this->getConfig('enabled'))
 	    {
+		    $this->package($this->packageNamespace, $this->packageNamespace, __DIR__.'/../..');
+
+		    if ( $this->app['config']->get($this->packageNamespace.'::create_tracker_alias') )
+		    {
+			    IlluminateAliasLoader::getInstance()->alias(
+				    $this->getConfig('tracker_alias'),
+				    'PragmaRX\Tracker\Vendor\Laravel\Facade'
+			    );
+		    }
+
 		    $this->loadRoutes();
 
 		    $this->registerErrorHandler();
 
-		    $this->bootTracker();
+		    $this->wakeUp();
 	    }
     }
 
@@ -85,6 +95,8 @@ class ServiceProvider extends PragmaRXServiceProvider {
     public function register()
     {
 	    parent::register();
+
+	    $this->registerConfig();
 
 	    if ($this->getConfig('enabled'))
 	    {
@@ -320,6 +332,14 @@ class ServiceProvider extends PragmaRXServiceProvider {
         });
     }
 
+    public function registerConfig()
+    {
+        $this->app['tracker.config'] = $this->app->share(function($app)
+        {
+            return new Config($app['config'], $this->packageNamespace);
+        });
+    }
+
     public function registerMigrator()
     {
         $this->app['tracker.migrator'] = $this->app->share(function($app)
@@ -328,6 +348,11 @@ class ServiceProvider extends PragmaRXServiceProvider {
 
             return new Migrator($app['db'], $connection);
         });
+    }
+
+    protected function wakeUp()
+    {
+	    $this->app['tracker']->boot();
     }
 
 	private function registerTablesCommand()
@@ -462,21 +487,6 @@ class ServiceProvider extends PragmaRXServiceProvider {
 		$this->registerServiceProvider('Bllim\Datatables\DatatablesServiceProvider');
 
 		$this->registerServiceAlias('Datatable', 'Bllim\Datatables\Facade\Datatables');
-	}
-
-	/**
-	 * Get the current package directory.
-	 *
-	 * @return string
-	 */
-	public function getPackageDir()
-	{
-		return __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..';
-	}
-
-	private function bootTracker()
-	{
-		$this->app['tracker']->boot();
 	}
 
 }
