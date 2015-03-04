@@ -1,8 +1,26 @@
 <?php
 
+/**
+ * Part of the Tracker package.
+ *
+ * NOTICE OF LICENSE
+ *
+ * Licensed under the 3-clause BSD License.
+ *
+ * This source file is subject to the 3-clause BSD License that is
+ * bundled with this package in the LICENSE file.  It is also available at
+ * the following URL: http://www.opensource.org/licenses/BSD-3-Clause
+ *
+ * @package    Tracker
+ * @author     Antonio Carlos Ribeiro @ PragmaRX
+ * @license    BSD License (3-clause)
+ * @copyright  (c) 2013, PragmaRX
+ * @link       http://pragmarx.com
+ */
+
 namespace PragmaRX\Tracker\Data\Repositories;
 
-use PragmaRX\Support\Config;
+use PragmaRX\Tracker\Support\Config;
 
 class SqlQuery extends Repository {
 
@@ -34,7 +52,7 @@ class SqlQuery extends Repository {
 	private $logRepository;
 
 	/**
-	 * @var \PragmaRX\Support\Config
+	 * @var \PragmaRX\Tracker\Support\Config
 	 */
 	private $config;
 
@@ -175,3 +193,22 @@ class SqlQuery extends Repository {
 	}
 
 }
+
+//$data = compact('bindings', 'time', 'name');
+//
+//// format binding data for sql insertion
+//foreach ($bindings as $i => $binding)
+//{
+//	if ($binding instanceof \DateTime)
+//	{
+//		$bindings[$i] = $binding->format('\'Y-m-d H:i:s\'');
+//	}
+//	else if (is_string($binding))
+//	{
+//		$bindings[$i] = "'$binding'";
+//	}
+//}
+//
+//$sqlQuery = str_replace(array('%', '?'), array('%%', '%s'), $sqlQuery);
+//$sqlQuery = vsprintf($sqlQuery, $bindings);
+

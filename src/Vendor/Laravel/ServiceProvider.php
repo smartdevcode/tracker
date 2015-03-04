@@ -10,7 +10,7 @@ use PragmaRX\Tracker\Tracker;
 
 use PragmaRX\Tracker\Services\Authentication;
 
-use PragmaRX\Support\Config;
+use PragmaRX\Tracker\Support\Config;
 use PragmaRX\Tracker\Support\MobileDetect;
 use PragmaRX\Tracker\Support\UserAgentParser;
 use PragmaRX\Support\ServiceProvider as PragmaRXServiceProvider;
@@ -43,6 +43,8 @@ use PragmaRX\Tracker\Vendor\Laravel\Artisan\UpdateParser as UpdateParserCommand;
 
 use PragmaRX\Support\GeoIp;
 
+use Illuminate\Foundation\AliasLoader as IlluminateAliasLoader;
+
 class ServiceProvider extends PragmaRXServiceProvider {
 
 	protected $packageVendor = 'pragmarx';
@@ -65,15 +67,23 @@ class ServiceProvider extends PragmaRXServiceProvider {
      */
     public function boot()
     {
-	    parent::boot();
-
 	    if ($this->getConfig('enabled'))
 	    {
+		    $this->package($this->packageNamespace, $this->packageNamespace, __DIR__.'/../..');
+
+		    if ( $this->app['config']->get($this->packageNamespace.'::create_tracker_alias') )
+		    {
+			    IlluminateAliasLoader::getInstance()->alias(
+				    $this->getConfig('tracker_alias'),
+				    'PragmaRX\Tracker\Vendor\Laravel\Facade'
+			    );
+		    }
+
 		    $this->loadRoutes();
 
 		    $this->registerErrorHandler();
 
-		    $this->bootTracker();
+		    $this->wakeUp();
 	    }
     }
 
@@ -85,6 +95,8 @@ class ServiceProvider extends PragmaRXServiceProvider {
     public function register()
     {
 	    parent::register();
+
+	    $this->registerConfig();
 
 	    if ($this->getConfig('enabled'))
 	    {
@@ -107,8 +119,6 @@ class ServiceProvider extends PragmaRXServiceProvider {
 		    $this->registerGlobalEventLogger();
 
 		    $this->registerDatatables();
-
-		    $this->registerGlobalViewComposers();
 
 		    $this->commands('tracker.tables.command');
 
@@ -322,6 +332,14 @@ class ServiceProvider extends PragmaRXServiceProvider {
         });
     }
 
+    public function registerConfig()
+    {
+        $this->app['tracker.config'] = $this->app->share(function($app)
+        {
+            return new Config($app['config'], $this->packageNamespace);
+        });
+    }
+
     public function registerMigrator()
     {
         $this->app['tracker.migrator'] = $this->app->share(function($app)
@@ -330,6 +348,11 @@ class ServiceProvider extends PragmaRXServiceProvider {
 
             return new Migrator($app['db'], $connection);
         });
+    }
+
+    protected function wakeUp()
+    {
+	    $this->app['tracker']->boot();
     }
 
 	private function registerTablesCommand()
@@ -453,45 +476,10 @@ class ServiceProvider extends PragmaRXServiceProvider {
 
 	private function loadRoutes()
 	{
-		if ( ! $this->getConfig('stats_panel_enabled'))
+		if ($this->app['config']->get($this->packageNamespace.'::stats_panel_enabled'))
 		{
-			return false;
+			include __DIR__.'/../../Vendor/Laravel/App/routes.php';
 		}
-
-		$prefix = $this->getConfig('stats_base_uri');
-
-		$namespace = $this->getConfig('stats_controllers_namespace');
-
-		$filter = $this->getConfig('stats_routes_before_filter');
-
-		$router = $this->app->make('router');
-
-		$router->group(['namespace' => $namespace], function() use ($prefix, $filter, $router)
-		{
-			$router->group(['before' => $filter], function() use ($prefix, $filter, $router)
-			{
-				$router->group(['prefix' => $prefix], function($router)
-				{
-					$router->get('/', array('as' => 'tracker.stats.index', 'uses' => 'Stats@index'));
-
-					$router->get('log/{uuid}', array('as' => 'tracker.stats.log', 'uses' => 'Stats@log'));
-
-					$router->get('api/pageviews', array('as' => 'tracker.stats.api.pageviews', 'uses' => 'Stats@apiPageviews'));
-
-					$router->get('api/pageviewsbycountry', array('as' => 'tracker.stats.api.pageviewsbycountry', 'uses' => 'Stats@apiPageviewsByCountry'));
-
-					$router->get('api/log/{uuid}', array('as' => 'tracker.stats.api.log', 'uses' => 'Stats@apiLog'));
-
-					$router->get('api/errors', array('as' => 'tracker.stats.api.errors', 'uses' => 'Stats@apiErrors'));
-
-					$router->get('api/events', array('as' => 'tracker.stats.api.events', 'uses' => 'Stats@apiEvents'));
-
-					$router->get('api/users', array('as' => 'tracker.stats.api.users', 'uses' => 'Stats@apiUsers'));
-
-					$router->get('api/visits', array('as' => 'tracker.stats.api.visits', 'uses' => 'Stats@apiVisits'));
-				});
-			});
-		});
 	}
 
 	private function registerDatatables()
@@ -499,43 +487,6 @@ class ServiceProvider extends PragmaRXServiceProvider {
 		$this->registerServiceProvider('Bllim\Datatables\DatatablesServiceProvider');
 
 		$this->registerServiceAlias('Datatable', 'Bllim\Datatables\Facade\Datatables');
-	}
-
-	/**
-	 * Get the current package directory.
-	 *
-	 * @return string
-	 */
-	public function getPackageDir()
-	{
-		return __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..';
-	}
-
-	/**
-	 * Boot & Track
-	 *
-	 */
-	private function bootTracker()
-	{
-		$this->app['tracker']->boot();
-	}
-
-	/**
-	 * Register global view composers
-	 *
-	 */
-	private function registerGlobalViewComposers()
-	{
-		$me = $this;
-
-		$this->app->make('view')->composer('pragmarx/tracker::*', function($view) use ($me)
-		{
-			$view->with('stats_layout', $me->getConfig('stats_layout'));
-
-			$template_path = url('/') . $me->getConfig('stats_template_path');
-
-			$view->with('stats_template_path', $template_path);
-		});
 	}
 
 }
