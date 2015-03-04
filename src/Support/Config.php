@@ -20,8 +20,26 @@
 
 namespace PragmaRX\Tracker\Support;
 
-use Illuminate\Filesystem\Filesystem as IlluminateFilesystem;
+use Illuminate\Config\Repository as IlluminateConfig;
 
-class Filesystem extends IlluminateFilesystem {
+class Config {
 
+    protected $config;
+
+    public function __construct(IlluminateConfig $config, $namespace)
+    {
+        $this->config = $config;
+
+        $this->namespace = $namespace;
+    }
+
+    public function get($key, $default = null)
+    {
+        return $this->config->get($this->namespace.'::'.$key, $default);
+    }
+
+	public function set($key, $value = null)
+	{
+		return $this->config->set($this->namespace.'::'.$key, $value);
+	}
 }
