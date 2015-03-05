@@ -1,33 +1,15 @@
 <?php
 
-/**
- * Part of the Tracker package.
- *
- * NOTICE OF LICENSE
- *
- * Licensed under the 3-clause BSD License.
- *
- * This source file is subject to the 3-clause BSD License that is
- * bundled with this package in the LICENSE file.  It is also available at
- * the following URL: http://www.opensource.org/licenses/BSD-3-Clause
- *
- * @package    Tracker
- * @author     Antonio Carlos Ribeiro @ PragmaRX
- * @license    BSD License (3-clause)
- * @copyright  (c) 2013, PragmaRX
- * @link       http://pragmarx.com
- */
-
 namespace PragmaRX\Tracker;
 
-use Illuminate\Foundation\Application as Laravel;
-use PragmaRX\Tracker\Support\Config;
-use PragmaRX\Tracker\Data\RepositoryManager as DataRepositoryManager;
-use PragmaRX\Tracker\Support\Database\Migrator as Migrator;
+use PragmaRX\Support\Config;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
 use Illuminate\Log\Writer as Logger;
 use PragmaRX\Tracker\Support\Minutes;
+use Illuminate\Foundation\Application as Laravel;
+use PragmaRX\Tracker\Support\Database\Migrator as Migrator;
+use PragmaRX\Tracker\Data\RepositoryManager as DataRepositoryManager;
 
 class Tracker
 {
@@ -189,20 +171,26 @@ class Tracker
         return $this->migrator;
     }
 
-	public function routerMatched()
+	public function routerMatched($log)
 	{
-		if ($this->config->get('enabled') && $this->config->get('log_routes'))
-		{
-		    if ($this->dataRepositoryManager->routeIsTrackable($this->route))
+	    if ($this->dataRepositoryManager->routeIsTrackable($this->route))
+	    {
+		    if ($log)
 		    {
 			    $this->dataRepositoryManager->updateRoute(
 				    $this->getRoutePathId($this->route->current())
 			    );
 		    }
-			else
-			{
-				$this->deleteCurrentLog();
-			}
+	    }
+
+	    // Router was matched but this route is not trackable
+	    // Let's just delete the stored data, because There's not a
+	    // really clean way of doing this because if a route is not
+	    // matched, and this happens ages after the app is booted,
+	    // we still need to store data from the request.
+		else
+		{
+			$this->deleteCurrentLog();
 		}
 	}
 
