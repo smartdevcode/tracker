@@ -29,12 +29,9 @@ class Tables extends Base {
 
 		foreach ($files->files($this->getPackageMigrationsPath()) as $file)
 		{
-            if ( ! file_exists($destination = $this->makeMigrationPath($file)))
-            {
-                $files->copy($file, $destination);
+			$files->copy($file, $destination = $this->makeMigrationPath($file));
 
-                $this->info("Migration created: $destination");
-            }
+			$this->info("Migration created: $destination");
 		}
 
 		if (isLaravel5())

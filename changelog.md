@@ -1,21 +1,11 @@
 # Changelog
 
-## [1.0.9] - 2015-11-23
-### Notes ! This is a breaking change, unfortunately
-- You must execute
-    php artisan tracker:tables
-  then
-    php artisan migrate
-### Fixed
-- Prevent migrations files from being overwritten
-### Added
-- referer to tracker_log
-
 ## [1.0.8] - 2015-11-23
 ### Fixed
 - Event log error when opening stats
 ### Added
 - Must be admin to access stats
+### Changed
 
 ## [1.0.7] - 2015-11-22
 ### Added
