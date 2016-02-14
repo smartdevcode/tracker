@@ -8,11 +8,6 @@ return [
 	'enabled' => false,
 
 	/**
-	 * Deffer booting for middleware use
-	 */
-	'use_middleware' => false,
-
-	/**
 	 * Robots should be tracked?
 	 */
 	'do_not_track_robots' => false,
