@@ -94,7 +94,7 @@ class Session extends Repository {
 
     private function sessionIsKnown()
     {
-        return $this->session->has($this->getSessionIdentifier())
+        return $this->session->has($this->getSessioIdentifier())
                 && $this->getSessionData('uuid') == $this->getSystemSessionId()
                 && $this->where('uuid', $this->getSessionData('uuid'))->first();
     }
@@ -170,7 +170,7 @@ class Session extends Repository {
 
     private function getSessionData($variable = null)
     {
-	    $id = $this->getSessionIdentifier();
+	    $id = $this->getSessioIdentifier();
 
         $data = $this->session->get($id);
 
@@ -179,10 +179,10 @@ class Session extends Repository {
 
     private function putSessionData($data)
     {
-        $this->session->put($this->getSessionIdentifier(), $data);
+        $this->session->put($this->getSessioIdentifier(), $data);
     }
 
-    private function getSessionIdentifier()
+    private function getSessioIdentifier()
     {
         return $this->config->get('tracker_session_name');
     }
