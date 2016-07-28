@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>@lang("tracker::tracker.tracker_title")</title>
+    <title>Laravel Stats Tracker</title>
 
 	<script src="{{ $stats_template_path }}/bower_components/jquery/dist/jquery.min.js"></script>
 
