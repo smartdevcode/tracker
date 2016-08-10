@@ -37,7 +37,7 @@ class LanguageDetect extends Agent {
 	 */
 	public function getLanguageRange()
 	{
-		return http_build_query($this->languages(),'','');
+		return http_build_query($this->languages(),',','');
 	}
 
 }
