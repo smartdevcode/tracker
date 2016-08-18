@@ -6,7 +6,6 @@ use PragmaRX\Tracker\Tracker;
 use PragmaRX\Support\PhpSession;
 use PragmaRX\Support\GeoIp\GeoIp;
 use PragmaRX\Tracker\Support\MobileDetect;
-use PragmaRX\Tracker\Support\LanguageDetect;
 use PragmaRX\Tracker\Eventing\EventStorage;
 use PragmaRX\Tracker\Data\Repositories\Log;
 use PragmaRX\Tracker\Data\RepositoryManager;
@@ -35,7 +34,6 @@ use PragmaRX\Tracker\Data\Repositories\SqlQueryBinding;
 use PragmaRX\Tracker\Data\Repositories\RoutePathParameter;
 use PragmaRX\Tracker\Data\Repositories\GeoIp as GeoIpRepository;
 use PragmaRX\Tracker\Data\Repositories\SqlQueryBindingParameter;
-use PragmaRX\Tracker\Data\Repositories\Language;
 use PragmaRX\Support\ServiceProvider as PragmaRXServiceProvider;
 use PragmaRX\Tracker\Vendor\Laravel\Artisan\Tables as TablesCommand;
 use PragmaRX\Tracker\Support\Exceptions\Handler as TrackerExceptionHandler;
@@ -74,7 +72,10 @@ class ServiceProvider extends PragmaRXServiceProvider {
 
 		    $this->registerErrorHandler();
 
-		    $this->bootTracker();
+			if (! $this->getConfig('use_middleware'))
+            {
+                $this->bootTracker();
+            }
 	    }
     }
 
@@ -207,8 +208,6 @@ class ServiceProvider extends PragmaRXServiceProvider {
 
 	        $systemClassModel = $this->instantiateModel('system_class_model');
 
-            $languageModel = $this->instantiateModel('language_model');
-
 	        $logRepository = new Log($logModel);
 
 	        $connectionRepository = new Connection($connectionModel);
@@ -316,11 +315,7 @@ class ServiceProvider extends PragmaRXServiceProvider {
 
 	            $systemClassRepository,
 
-		        $crawlerDetect,
-
-                new Language($languageModel),
-
-                new LanguageDetect
+		        $crawlerDetect
             );
         });
     }

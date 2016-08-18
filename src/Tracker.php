@@ -108,12 +108,6 @@ class Tracker
             : null;
     }
 
-    public function getLanguageId() {
-        return $this->config->get('log_languages')
-            ? $this->dataRepositoryManager->findOrCreateLanguage($this->dataRepositoryManager->getCurrentLanguage())
-            : null;
-    }
-
     public function getDomainId($domain) {
         return $this->dataRepositoryManager->getDomainId($domain);
     }
@@ -188,7 +182,6 @@ class Tracker
             'agent_id'   => $this->getAgentId(),
             'referer_id' => $this->getRefererId(),
             'cookie_id'  => $this->getCookieId(),
-            'language_id'  => $this->getLanguageId(),
             'is_robot'   => $this->isRobot(),
 
             // The key user_agent is not present in the sessions table, but
@@ -240,8 +233,7 @@ class Tracker
         $this->parserIsAvailable() &&
         $this->isTrackableIp() &&
         $this->isTrackableEnvironment() &&
-        $this->notRobotOrTrackable() &&
-        $this->isTrackableRoute();
+        $this->notRobotOrTrackable();
     }
 
     protected function isTrackableEnvironment() {
@@ -286,7 +278,6 @@ class Tracker
             $this->config->get('log_user_agents') ||
             $this->config->get('log_users') ||
             $this->config->get('log_devices') ||
-            $this->config->get('log_languages') ||
             $this->config->get('log_referers') ||
             $this->config->get('log_paths') ||
             $this->config->get('log_queries') ||
@@ -387,19 +378,5 @@ class Tracker
 
     public function users($minutes, $results = true) {
         return $this->dataRepositoryManager->users(Minutes::make($minutes), $results);
-    }
-
-    protected function isTrackableRoute() {
-        if (is_null(\Request::path())) {
-            return true;
-        }
-        $routes = $this->config->get('do_not_track_routes');
-        foreach ($routes as $route) {
-            $match = preg_grep ('/'. $route .'/i', [\Request::path()]);
-            if(!empty($match)){
-                return false;
-            }
-        }
-        return true;
     }
 }
