@@ -2,88 +2,91 @@
 
 namespace PragmaRX\Tracker\Data\Repositories;
 
-abstract class Repository implements RepositoryInterface
-{
-    protected $builder;
+abstract class Repository implements RepositoryInterface {
 
-    protected $model;
+	protected $builder;
 
-    protected $result;
+	protected $model;
 
-    protected $connection;
+	protected $result;
 
-    protected $className;
+	protected $connection;
 
-    public function __construct($model)
-    {
-        $this->model = $model;
+	protected $className;
 
-        $this->className = get_class($model);
+	public function __construct($model)
+	{
+		$this->model = $model;
 
-        $this->connection = $this->getModel()->getConnectionName();
-    }
+		$this->className = get_class($model);
 
-    public function where($key, $operation, $value = null)
-    {
-        $this->builder = $this->builder ?: $this->newQuery();
+		$this->connection = $this->getModel()->getConnectionName();
+	}
 
-        $this->builder = $this->builder->where($key, $operation, $value = null);
+	public function where($key, $operation, $value = null)
+	{
+		$this->builder = $this->builder ?: $this->newQuery();
 
-        return $this;
-    }
+		$this->builder = $this->builder->where($key, $operation, $value = null);
 
-    public function first()
-    {
-        $this->result = $this->builder->first();
+		return $this;
+	}
 
-        return $this->result ? $this : null;
-    }
+	public function first()
+	{
+		$this->result = $this->builder->first();
 
-    public function find($id)
-    {
-        $this->result = $this->newQuery()->find($id);
+		return $this->result ? $this : null;
+	}
 
-        if ($this->result) {
-            $this->model = $this->result;
-        }
+	public function find($id)
+	{
+		$this->result = $this->newQuery()->find($id);
 
-        return $this->result;
-    }
+		if ($this->result)
+		{
+			$this->model = $this->result;
+		}
 
-    public function create($attributes, $model = null)
-    {
-        $model = $model && !$model->exists() ? $model : $this->newModel($model);
+		return $this->result;
+	}
 
-        foreach ($attributes as $attribute => $value) {
-            if (in_array($attribute, $model->getFillable())) {
-                $model->{$attribute} = $value;
-            }
-        }
+	public function create($attributes, $model = null)
+	{
+		$model = $model && ! $model->exists() ? $model : $this->newModel($model);
+
+		foreach ($attributes as $attribute => $value)
+		{
+			if (in_array($attribute, $model->getFillable()))
+			{
+				$model->{$attribute} = $value;
+			}
+		}
 
         $model->save();
 
-        return $model;
-    }
+		return $model;
+	}
 
-    public function getId()
-    {
-        return $this->getAttribute('id');
-    }
+	public function getId()
+	{
+		return $this->getAttribute('id');
+	}
 
-    public function getAttribute($attribute)
-    {
-        return $this->result ? $this->result->{$attribute} : null;
-    }
+	public function getAttribute($attribute)
+	{
+		return $this->result ? $this->result->{$attribute} : null;
+	}
 
-    public function setAttribute($attribute, $value)
-    {
-        return $this->result->{$attribute} = $value;
-    }
+	public function setAttribute($attribute, $value)
+	{
+		return $this->result->{$attribute} = $value;
+	}
 
-    public function save()
-    {
-        return $this->result->save();
-    }
+	public function save()
+	{
+		return $this->result->save();
+	}
 
     public function findOrCreate($attributes, $keys = null, &$created = false, $otherModel = null)
     {
@@ -91,61 +94,69 @@ abstract class Repository implements RepositoryInterface
 
         $keys = $keys ?: array_keys($attributes);
 
-        foreach ($keys as $key) {
-            $model = $model->where($key, $attributes[$key]);
+        foreach ($keys as $key)
+        {
+	        $model = $model->where($key, $attributes[$key]);
         }
 
-        if (!$model = $model->first()) {
+        if ( ! $model = $model->first())
+        {
             $model = $this->create($attributes, $otherModel);
 
-            $created = true;
+	        $created = true;
         }
 
-        $this->model = $model;
+	    $this->model = $model;
 
         return  $model->id;
     }
 
     public function getModel()
     {
-        if ($this->model instanceof Illuminate\Database\Eloquent\Builder) {
-            $this->model = new $this->className();
-        }
+    	if ($this->model instanceof Illuminate\Database\Eloquent\Builder)
+    	{
+    		$this->model = new $this->className;
+    	}
 
-        if ($this->connection) {
-            $this->model->setConnection($this->connection);
-        }
+	    if ($this->connection)
+	    {
+		    $this->model->setConnection($this->connection);
+	    }
 
-        return $this->model;
+    	return $this->model;
     }
 
-    public function newModel($model = null)
-    {
-        $className = $this->className;
+	public function newModel($model = null)
+	{
+		$className = $this->className;
 
-        if ($model) {
-            $className = get_class($model);
-        }
+		if ($model)
+		{
+			$className = get_class($model);
+		}
 
-        $this->model = new $className();
+		$this->model = new $className;
 
-        return $this->getModel();
-    }
+		return $this->getModel();
+	}
 
-    public function newQuery($model = null)
-    {
-        $className = $this->className;
+	public function newQuery($model = null)
+	{
+		$className = $this->className;
 
-        if ($model) {
-            $className = get_class($model);
-        }
+		if ($model)
+		{
+			$className = get_class($model);
+		}
 
-        $this->builder = new $className();
+		$this->builder = new $className;
 
-        if ($this->connection) {
-            $this->builder = $this->builder->on($this->connection);
-        }
+		if ($this->connection)
+		{
+			$this->builder = $this->builder->on($this->connection);
+		}
 
-        return $this->builder->newQuery();
-    }
+		return $this->builder->newQuery();
+	}
+
 }

@@ -2,11 +2,12 @@
 
 namespace PragmaRX\Tracker\Vendor\Laravel\Models;
 
-class Agent extends Base
-{
-    protected $table = 'tracker_agents';
+class Agent extends Base {
 
-    protected $fillable = ['name',
-                                'browser',
-                                'browser_version', ];
+	protected $table = 'tracker_agents';
+
+	protected $fillable = array('name',
+								'browser',
+								'browser_version');
+
 }

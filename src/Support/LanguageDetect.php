@@ -4,17 +4,17 @@ namespace PragmaRX\Tracker\Support;
 
 use Jenssegers\Agent\Agent;
 
-class LanguageDetect extends Agent
-{
+class LanguageDetect extends Agent {
+
     /**
-     * Detect preference and language-range.
+     * Detect preference and language-range
      *
      * @return array
      */
     public function detectLanguage()
     {
         return [
-            'preference'     => $this->getLanguagePreference(),
+            'preference' => $this->getLanguagePreference(),
             'language-range' => $this->getLanguageRange(),
         ];
     }
@@ -27,12 +27,11 @@ class LanguageDetect extends Agent
     public function getLanguagePreference()
     {
         $languages = $this->languages();
-
         return count($languages) ? $languages[0] : 'en';
     }
 
     /**
-     * Get languages ranges.
+     * Get languages ranges
      *
      * @return string
      */
@@ -40,4 +39,5 @@ class LanguageDetect extends Agent
     {
         return implode(',', $this->languages());
     }
+
 }

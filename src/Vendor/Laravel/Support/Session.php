@@ -2,22 +2,23 @@
 
 namespace PragmaRX\Tracker\Vendor\Laravel\Support;
 
-use Illuminate\Support\Facades\Input;
-use PragmaRX\Tracker\Support\Minutes;
+use Auth;
 use Session as LaravelSession;
+use PragmaRX\Tracker\Support\Minutes;
+use Illuminate\Support\Facades\Input;
 
 class Session
 {
     private $minutes;
 
     public function __construct()
-    {
+	{
         LaravelSession::put('tracker.stats.days', $this->getValue('days', 1));
 
         LaravelSession::put('tracker.stats.page', $this->getValue('page', 'visits'));
 
         $this->minutes = new Minutes(60 * 24 * LaravelSession::get('tracker.stats.days'));
-    }
+	}
 
     /**
      * @return Minutes
@@ -29,9 +30,12 @@ class Session
 
     public function getValue($variable, $default = null)
     {
-        if (Input::has($variable)) {
+        if (Input::has($variable))
+        {
             $value = Input::get($variable);
-        } else {
+        }
+        else
+        {
             $value = LaravelSession::get('tracker.stats.'.$variable, $default);
         }
 

@@ -5,181 +5,191 @@ namespace PragmaRX\Tracker\Data\Repositories;
 use PragmaRX\Support\Config;
 use PragmaRX\Tracker\Eventing\EventStorage;
 
-class Event extends Repository
-{
-    /**
-     * @var EventLog
-     */
-    private $eventLogRepository;
+class Event extends Repository {
 
-    /**
-     * @var SystemClass
-     */
-    private $systemClassRepository;
+	/**
+	 * @var EventLog
+	 */
+	private $eventLogRepository;
 
-    /**
-     * @var Log
-     */
-    private $logRepository;
+	/**
+	 * @var SystemClass
+	 */
+	private $systemClassRepository;
 
-    /**
-     * @var \PragmaRX\Support\Config
-     */
-    private $config;
+	/**
+	 * @var Log
+	 */
+	private $logRepository;
 
-    /**
-     * @var \PragmaRX\Tracker\Eventing\EventStorage
-     */
-    private $eventStorage;
+	/**
+	 * @var \PragmaRX\Support\Config
+	 */
+	private $config;
 
-    public function __construct(
-        $model,
-        EventStorage $eventStorage,
-        EventLog $eventLogRepository,
-        SystemClass $systemClassRepository,
-        Log $logRepository,
-        Config $config
-    ) {
-        parent::__construct($model);
+	/**
+	 * @var \PragmaRX\Tracker\Eventing\EventStorage
+	 */
+	private $eventStorage;
 
-        $this->eventStorage = $eventStorage;
+	public function __construct(
+		$model,
+		EventStorage $eventStorage,
+	    EventLog $eventLogRepository,
+	    SystemClass $systemClassRepository,
+	    Log $logRepository,
+		Config $config
+	)
+	{
+		parent::__construct($model);
 
-        $this->eventLogRepository = $eventLogRepository;
+		$this->eventStorage = $eventStorage;
 
-        $this->systemClassRepository = $systemClassRepository;
+		$this->eventLogRepository = $eventLogRepository;
 
-        $this->logRepository = $logRepository;
+		$this->systemClassRepository = $systemClassRepository;
 
-        $this->config = $config;
-    }
+		$this->logRepository = $logRepository;
 
-    public function logEvents()
-    {
-        if (!$this->logRepository->getCurrentLogId()) {
-            return;
-        }
+		$this->config = $config;
+	}
 
-        foreach ($this->eventStorage->popAll() as $event) {
-            if ($this->isLoggableEvent($event)) {
-                $this->logEvent($event);
-            }
-        }
-    }
+	public function logEvents()
+	{
+		if ( ! $this->logRepository->getCurrentLogId())
+		{
+			return;
+		}
 
-    private function isLoggableEvent($event)
-    {
-        $forbidden = $this->config->get('do_not_log_events');
+		foreach ($this->eventStorage->popAll() as $event)
+		{
+			if ($this->isLoggableEvent($event))
+			{
+				$this->logEvent($event);
+			}
+		}
+	}
 
-        // Illuminate Query may cause infinite recursion
-        $forbidden[] = 'illuminate.query';
+	private function isLoggableEvent($event)
+	{
+		$forbidden = $this->config->get('do_not_log_events');
 
-        return
-            $event['event'] != $this->getObject($event['object'])
+		// Illuminate Query may cause infinite recursion
+		$forbidden[] = 'illuminate.query';
 
-            &&
+		return
+			$event['event'] != $this->getObject($event['object'])
 
-            !in_array_wildcard($event['event'], $forbidden)
+			&&
 
-            &&
+			! in_array_wildcard($event['event'], $forbidden)
 
-            !$this->config->get('log_only_events')
-                || in_array($event['event'], $this->config->get('log_only_events'));
-    }
+			&&
 
-    public function logEvent($event)
-    {
-        $event = $this->makeEventArray($event);
+			! $this->config->get('log_only_events')
+				|| in_array($event['event'], $this->config->get('log_only_events'))
 
-        $evenId = $this->getEventId($event);
+			;
+	}
 
-        if ($evenId) {
-            $objectName = $this->getObjectName($event);
+	public function logEvent($event)
+	{
+		$event = $this->makeEventArray($event);
 
-            $classId = $this->getClassId($objectName);
+		$evenId = $this->getEventId($event);
 
-            $this->eventLogRepository->create(
-                [
-                    'log_id'   => $this->logRepository->getCurrentLogId(),
-                    'event_id' => $evenId,
-                    'class_id' => $classId,
-                ]
-            );
-        }
-    }
+		if ($evenId)
+		{
+			$objectName = $this->getObjectName($event);
 
-    private function getObject($object)
-    {
-        if (is_object($object)) {
-            $object = get_class($object);
-        } elseif (is_array($object)) {
-            $object = serialize($object);
-        }
+			$classId = $this->getClassId($objectName);
 
-        return $object;
-    }
+			$this->eventLogRepository->create(
+				array(
+					'log_id'   => $this->logRepository->getCurrentLogId(),
+					'event_id' => $evenId,
+					'class_id' => $classId,
+				)
+			);
+		}
+	}
 
-    public function getAll($minutes, $results)
-    {
-        return $this->getModel()->allInThePeriod($minutes, $results);
-    }
+	private function getObject($object)
+	{
+		if (is_object($object))
+		{
+			$object = get_class($object);
+		}
+		else
+		if(is_array($object))
+		{
+			$object = serialize($object);
+		}
 
-    /**
-     * Get the object name from an event.
-     *
-     * @param $event
-     *
-     * @return null|string
-     */
-    private function getObjectName($event)
-    {
-        return isset($event['object'])
-            ? $this->getObject($event['object'])
-            : null;
-    }
+		return $object;
+	}
 
-    /**
-     * Get the system class id by object name.
-     *
-     * @param $objectName
-     *
-     * @return null
-     */
-    private function getClassId($objectName)
-    {
-        return $objectName
-            ? $this->systemClassRepository->findOrCreate(
-                ['name' => $objectName],
-                ['name']
-            )
-            : null;
-    }
+	public function getAll($minutes, $results)
+	{
+		return $this->getModel()->allInThePeriod($minutes, $results);
+	}
 
-    /**
-     * Get the event id.
-     *
-     * @param $event
-     *
-     * @return null
-     */
-    private function getEventId($event)
-    {
-        return $event['event']
-            ? $this->findOrCreate(
-                    ['name' => $event['event']],
-                    ['name']
-                )
-            : null;
-    }
+	/**
+	 * Get the object name from an event.
+	 *
+	 * @param $event
+	 * @return null|string
+	 */
+	private function getObjectName($event)
+	{
+		return isset($event['object'])
+			? $this->getObject($event['object'])
+			: null;
+	}
 
-    private function makeEventArray($event)
-    {
-        if (is_string($event)) {
-            $event = [
-                'event'  => $event,
-                'object' => null,
-            ];
-        }
+	/**
+	 * Get the system class id by object name.
+	 *
+	 * @param $objectName
+	 * @return null
+	 */
+	private function getClassId($objectName)
+	{
+		return $objectName
+			? $this->systemClassRepository->findOrCreate(
+				array('name' => $objectName),
+				array('name')
+			)
+			: null;
+	}
 
-        return $event;
-    }
+	/**
+	 * Get the event id.
+	 *
+	 * @param $event
+	 * @return null
+	 */
+	private function getEventId($event)
+	{
+		return $event['event']
+			?   $this->findOrCreate(
+					array('name' => $event['event']),
+					array('name')
+				)
+			: null;
+	}
+
+	private function makeEventArray($event)
+	{
+		if (is_string($event))
+		{
+			$event = array(
+				'event' => $event,
+				'object' => null
+			);
+		}
+
+		return $event;
+	}
+
 }

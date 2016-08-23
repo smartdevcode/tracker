@@ -1,109 +1,116 @@
-<?php
-
-namespace PragmaRX\Tracker\Vendor\Laravel\Artisan;
+<?php namespace PragmaRX\Tracker\Vendor\Laravel\Artisan;
 
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
-class Base extends Command
-{
-    /**
-     * The table helper set.
-     *
-     * @var \Symfony\Component\Console\Helper\TableHelper
-     */
-    protected $table;
+class Base extends Command {
 
-    /**
-     * Display all messages.
-     *
-     * @param $type
-     * @param $messages
-     */
-    public function displayMessages($type, $messages)
-    {
-        foreach ($messages as $message) {
-            $this->$type($message);
-        }
-    }
+	/**
+	 * The table helper set.
+	 *
+	 * @var \Symfony\Component\Console\Helper\TableHelper
+	 */
+	protected $table;
 
-    /**
-     * Get the console command arguments.
-     *
-     * @return array
-     */
-    protected function getArguments()
-    {
-        return [
-            ['query', InputArgument::IS_ARRAY, 'The SQL query to be executed'],
-        ];
-    }
+	/**
+	 * Display all messages.
+	 *
+	 * @param $type
+	 * @param $messages
+	 */
+	public function displayMessages($type, $messages)
+	{
+		foreach ($messages as $message)
+		{
+			$this->$type($message);
+		}
+	}
 
-    /**
-     * Get the console command options.
-     *
-     * @return array
-     */
-    protected function getOptions()
-    {
-        $baseOptions = [
-            ['database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use.'],
-        ];
+	/**
+	 * Get the console command arguments.
+	 *
+	 * @return array
+	 */
+	protected function getArguments()
+	{
+		return array(
+			array('query', InputArgument::IS_ARRAY, 'The SQL query to be executed'),
+		);
+	}
 
-        return array_merge($baseOptions, isset($this->options) ? $this->options : []);
-    }
+	/**
+	 * Get the console command options.
+	 *
+	 * @return array
+	 */
+	protected function getOptions()
+	{
+		$baseOptions = 	array(
+			array('database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use.'),
+		);
 
-    /**
-     * Display results.
-     *
-     * @param $result
-     * @param string $method
-     */
-    public function display($result, $method = 'info')
-    {
-        if ($result) {
-            if (is_array($result)) {
-                $this->displayTable($result);
-            } elseif (is_bool($result)) {
-                $this->{$method}($result ? 'Statement executed sucessfully.' : 'And error ocurred while executing the statement.');
-            } else {
-                $this->{$method}($result);
-            }
-        }
-    }
+		return array_merge($baseOptions, isset($this->options) ? $this->options : array());
+	}
 
-    /**
-     * Display results in table format.
-     *
-     * @param $table
-     */
-    public function displayTable($table)
-    {
-        $headers = $this->makeHeaders($table[0]);
+	/**
+	 * Display results.
+	 *
+	 * @param $result
+	 * @param string $method
+	 */
+	public function display($result, $method = 'info')
+	{
+		if ($result)
+		{
+			if (is_array($result))
+			{
+				$this->displayTable($result);
+			}
+			else
+			if (is_bool($result))
+			{
+				$this->{$method}($result ? 'Statement executed sucessfully.' : 'And error ocurred while executing the statement.');
+			}
+			else
+			{
+				$this->{$method}($result);
+			}
+		}
+	}
 
-        $rows = [];
+	/**
+	 * Display results in table format.
+	 *
+	 * @param $table
+	 */
+	public function displayTable($table)
+	{
+		$headers = $this->makeHeaders($table[0]);
 
-        foreach ($table as $row) {
-            $rows[] = (array) $row;
-        }
+		$rows = array();
 
-        $this->table = $this->getHelperSet()->get('table');
+		foreach ($table as $row)
+		{
+			$rows[] = (array) $row;
+		}
 
-        $this->table->setHeaders($headers)->setRows($rows);
+		$this->table = $this->getHelperSet()->get('table');
 
-        $this->table->render($this->getOutput());
-    }
+		$this->table->setHeaders($headers)->setRows($rows);
 
-    /**
-     * Extract headers from result.
-     *
-     * @param $items
-     *
-     * @return array
-     */
-    private function makeHeaders($items)
-    {
-        return array_keys((array) $items);
-    }
+		$this->table->render($this->getOutput());
+	}
+
+	/**
+	 * Extract headers from result.
+	 *
+	 * @param $items
+	 * @return array
+	 */
+	private function makeHeaders($items)
+	{
+		return array_keys((array) $items);
+	}
+
 }

@@ -2,43 +2,46 @@
 
 use PragmaRX\Tracker\Support\Migration;
 
-class CreateTrackerSqlQueryBindingsTable extends Migration
-{
-    /**
-     * Table related to this migration.
-     *
-     * @var string
-     */
-    private $table = 'tracker_sql_query_bindings';
+class CreateTrackerSqlQueryBindingsTable extends Migration {
 
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function migrateUp()
-    {
-        $this->builder->create(
-            $this->table,
-            function ($table) {
-                $table->bigIncrements('id');
+	/**
+	 * Table related to this migration.
+	 *
+	 * @var string
+	 */
 
-                $table->string('sha1', 40)->index();
-                $table->text('serialized');
+	private $table = 'tracker_sql_query_bindings';
 
-                $table->timestamp('created_at')->index();
-                $table->timestamp('updated_at')->index();
-            }
-        );
-    }
+	/**
+	 * Run the migrations.
+	 *
+	 * @return void
+	 */
+	public function migrateUp()
+	{
+		$this->builder->create(
+			$this->table,
+			function ($table)
+			{
+				$table->bigIncrements('id');
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function migrateDown()
-    {
-        $this->drop($this->table);
-    }
+				$table->string('sha1', 40)->index();
+				$table->text('serialized');
+
+				$table->timestamp('created_at')->index();
+				$table->timestamp('updated_at')->index();
+			}
+		);
+	}
+
+	/**
+	 * Reverse the migrations.
+	 *
+	 * @return void
+	 */
+	public function migrateDown()
+	{
+		$this->drop($this->table);
+	}
+
 }

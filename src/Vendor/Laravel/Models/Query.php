@@ -2,16 +2,17 @@
 
 namespace PragmaRX\Tracker\Vendor\Laravel\Models;
 
-class Query extends Base
-{
-    protected $table = 'tracker_queries';
+class Query extends Base {
 
-    protected $fillable = [
-        'query',
-    ];
+	protected $table = 'tracker_queries';
 
-    public function arguments()
-    {
-        return $this->hasMany($this->getConfig()->get('query_argument_model'));
-    }
+	protected $fillable = array(
+		'query',
+	);
+
+	public function arguments()
+	{
+		return $this->hasMany($this->getConfig()->get('query_argument_model'));
+	}
+
 }

@@ -4,166 +4,174 @@ namespace PragmaRX\Tracker\Data\Repositories;
 
 use PragmaRX\Support\Config;
 
-class SqlQuery extends Repository
-{
-    private $queries = [];
+class SqlQuery extends Repository {
 
-    /**
-     * @var SqlQueryLog
-     */
-    private $sqlQueryLogRepository;
+	private $queries = array();
 
-    /**
-     * @var SqlQueryBinding
-     */
-    private $sqlQueryBindingRepository;
+	/**
+	 * @var SqlQueryLog
+	 */
+	private $sqlQueryLogRepository;
 
-    /**
-     * @var SqlQueryBindingParameter
-     */
-    private $sqlQueryBindingParameterRepository;
+	/**
+	 * @var SqlQueryBinding
+	 */
+	private $sqlQueryBindingRepository;
 
-    /**
-     * @var Connection
-     */
-    private $connectionRepository;
+	/**
+	 * @var SqlQueryBindingParameter
+	 */
+	private $sqlQueryBindingParameterRepository;
 
-    /**
-     * @var Log
-     */
-    private $logRepository;
+	/**
+	 * @var Connection
+	 */
+	private $connectionRepository;
 
-    /**
-     * @var \PragmaRX\Support\Config
-     */
-    private $config;
+	/**
+	 * @var Log
+	 */
+	private $logRepository;
 
-    public function __construct($model,
-                                SqlQueryLog $sqlQueryLogRepository,
-                                SqlQueryBinding $sqlQueryBindingRepository,
-                                SqlQueryBindingParameter $sqlQueryBindingParameterRepository,
-                                Connection $connectionRepository,
-                                Log $logRepository,
-                                Config $config
-    ) {
-        parent::__construct($model);
+	/**
+	 * @var \PragmaRX\Support\Config
+	 */
+	private $config;
 
-        $this->sqlQueryLogRepository = $sqlQueryLogRepository;
+	public function __construct($model,
+	                            SqlQueryLog $sqlQueryLogRepository,
+	                            SqlQueryBinding $sqlQueryBindingRepository,
+	                            SqlQueryBindingParameter $sqlQueryBindingParameterRepository,
+	                            Connection $connectionRepository,
+								Log $logRepository,
+								Config $config
+	)
+	{
+		parent::__construct($model);
 
-        $this->sqlQueryBindingRepository = $sqlQueryBindingRepository;
+		$this->sqlQueryLogRepository = $sqlQueryLogRepository;
 
-        $this->sqlQueryBindingParameterRepository = $sqlQueryBindingParameterRepository;
+		$this->sqlQueryBindingRepository = $sqlQueryBindingRepository;
 
-        $this->connectionRepository = $connectionRepository;
+		$this->sqlQueryBindingParameterRepository = $sqlQueryBindingParameterRepository;
 
-        $this->logRepository = $logRepository;
+		$this->connectionRepository = $connectionRepository;
 
-        $this->config = $config;
-    }
+		$this->logRepository = $logRepository;
 
-    public function fire()
-    {
-        if (!$this->logRepository->getCurrentLogId()) {
-            return;
-        }
+		$this->config = $config;
+	}
 
-        foreach ($this->queries as $query) {
-            $this->logQuery($query);
-        }
+	public function fire()
+	{
+		if ( ! $this->logRepository->getCurrentLogId())
+		{
+			return;
+		}
 
-        $this->clear();
-    }
+		foreach ($this->queries as $query)
+		{
+			$this->logQuery($query);
+		}
 
-    private function sqlQueryIsLoggable($sqlQuery)
-    {
-        return strpos($sqlQuery, '"tracker_') === false;
-    }
+		$this->clear();
+	}
 
-    private function serializeBindings($bindings)
-    {
-        return serialize($bindings);
-    }
+	private function sqlQueryIsLoggable($sqlQuery)
+	{
+		return strpos($sqlQuery, '"tracker_') === false;
+	}
 
-    public function push($query)
-    {
-        $this->queries[] = $query;
+	private function serializeBindings($bindings)
+	{
+		return serialize($bindings);
+	}
 
-        $this->fire();
-    }
+	public function push($query)
+	{
+		$this->queries[] = $query;
 
-    private function logQuery($query)
-    {
-        $sqlQuery = htmlentities($query['query']);
+		$this->fire();
+	}
 
-        $bindings = $query['bindings'];
+	private function logQuery($query)
+	{
+		$sqlQuery = htmlentities($query['query']);
 
-        $time = $query['time'];
+		$bindings = $query['bindings'];
 
-        $name = $query['name'];
+		$time = $query['time'];
 
-        if (!$this->sqlQueryIsLoggable($sqlQuery)) {
-            return;
-        }
+		$name = $query['name'];
 
-        $connectionId = $this->connectionRepository->findOrCreate(
-            ['name' => $name],
-            ['name']
-        );
+		if ( ! $this->sqlQueryIsLoggable($sqlQuery))
+		{
+			return;
+		}
 
-        $sqlQueryId = $this->findOrCreate(
-            [
-                'sha1'          => sha1($sqlQuery),
-                'statement'     => $sqlQuery,
-                'time'          => $time,
-                'connection_id' => $connectionId,
-            ],
-            ['sha1']
-        );
+		$connectionId = $this->connectionRepository->findOrCreate(
+			array('name' => $name),
+			array('name')
+		);
 
-        if ($bindings && $this->canLogBindings()) {
-            $bindingsSerialized = $this->serializeBindings($bindings);
+		$sqlQueryId = $this->findOrCreate(
+			array(
+				'sha1'          => sha1($sqlQuery),
+				'statement'     => $sqlQuery,
+				'time'          => $time,
+				'connection_id' => $connectionId,
+			),
+			array('sha1')
+		);
 
-            $sqlQuery_bindings_id = $this->sqlQueryBindingRepository->findOrCreate(
-                ['sha1' => sha1($bindingsSerialized), 'serialized' => $bindingsSerialized],
-                ['sha1'],
-                $created
-            );
+		if ($bindings && $this->canLogBindings())
+		{
+			$bindingsSerialized = $this->serializeBindings($bindings);
 
-            if ($created) {
-                foreach ($bindings as $parameter => $value) {
-                    $this->sqlQueryBindingParameterRepository->create(
-                        [
-                            'sql_query_bindings_id' => $sqlQuery_bindings_id,
+			$sqlQuery_bindings_id = $this->sqlQueryBindingRepository->findOrCreate(
+				array('sha1' => sha1($bindingsSerialized), 'serialized' => $bindingsSerialized),
+				array('sha1'),
+				$created
+			);
 
-                            // unfortunately laravel uses question marks,
-                            // but hopefully someday this will change
-                            'name'                  => '?',
+			if ($created)
+			{
+				foreach ($bindings as $parameter => $value)
+				{
+					$this->sqlQueryBindingParameterRepository->create(
+						array(
+							'sql_query_bindings_id' => $sqlQuery_bindings_id,
 
-                            'value'                 => $value,
-                        ]
-                    );
-                }
-            }
-        }
+							// unfortunately laravel uses question marks,
+							// but hopefully someday this will change
+							'name'                  => '?',
 
-        $this->sqlQueryLogRepository->create(
-            [
-                'log_id'       => $this->logRepository->getCurrentLogId(),
-                'sql_query_id' => $sqlQueryId,
-            ]
-        );
-    }
+							'value'                 => $value,
+						)
+					);
+				}
+			}
+		}
 
-    private function canLogBindings()
-    {
-        return $this->config->get('log_sql_queries_bindings');
-    }
+		$this->sqlQueryLogRepository->create(
+			array(
+				'log_id'       => $this->logRepository->getCurrentLogId(),
+				'sql_query_id' => $sqlQueryId,
+			)
+		);
+	}
 
-    /**
-     * @return array
-     */
-    private function clear()
-    {
-        return $this->queries = [];
-    }
+	private function canLogBindings()
+	{
+		return $this->config->get('log_sql_queries_bindings');
+	}
+
+	/**
+	 * @return array
+	 */
+	private function clear()
+	{
+		return $this->queries = array();
+	}
+
 }

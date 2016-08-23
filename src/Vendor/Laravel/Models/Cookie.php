@@ -2,9 +2,10 @@
 
 namespace PragmaRX\Tracker\Vendor\Laravel\Models;
 
-class Cookie extends Base
-{
-    protected $table = 'tracker_cookies';
+class Cookie extends Base {
 
-    protected $fillable = ['uuid'];
+	protected $table = 'tracker_cookies';
+
+	protected $fillable = array('uuid');
+
 }

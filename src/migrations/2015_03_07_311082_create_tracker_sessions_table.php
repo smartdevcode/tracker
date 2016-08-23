@@ -2,50 +2,53 @@
 
 use PragmaRX\Tracker\Support\Migration;
 
-class CreateTrackerSessionsTable extends Migration
-{
-    /**
-     * Table related to this migration.
-     *
-     * @var string
-     */
-    private $table = 'tracker_sessions';
+class CreateTrackerSessionsTable extends Migration {
 
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function migrateUp()
-    {
-        $this->builder->create(
-            $this->table,
-            function ($table) {
-                $table->bigIncrements('id');
+	/**
+	 * Table related to this migration.
+	 *
+	 * @var string
+	 */
 
-                $table->string('uuid')->unique()->index();
-                $table->bigInteger('user_id')->unsigned()->nullable()->index();
-                $table->bigInteger('device_id')->unsigned()->nullable()->index();
-                $table->bigInteger('agent_id')->unsigned()->nullable()->index();
-                $table->string('client_ip')->index();
-                $table->bigInteger('referer_id')->unsigned()->nullable()->index();
-                $table->bigInteger('cookie_id')->unsigned()->nullable()->index();
-                $table->bigInteger('geoip_id')->unsigned()->nullable()->index();
-                $table->boolean('is_robot');
+	private $table = 'tracker_sessions';
 
-                $table->timestamp('created_at')->index();
-                $table->timestamp('updated_at')->index();
-            }
-        );
-    }
+	/**
+	 * Run the migrations.
+	 *
+	 * @return void
+	 */
+	public function migrateUp()
+	{
+		$this->builder->create(
+			$this->table,
+			function ($table)
+			{
+				$table->bigIncrements('id');
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function migrateDown()
-    {
-        $this->drop($this->table);
-    }
+				$table->string('uuid')->unique()->index();
+				$table->bigInteger('user_id')->unsigned()->nullable()->index();
+				$table->bigInteger('device_id')->unsigned()->nullable()->index();
+				$table->bigInteger('agent_id')->unsigned()->nullable()->index();
+				$table->string('client_ip')->index();
+				$table->bigInteger('referer_id')->unsigned()->nullable()->index();
+				$table->bigInteger('cookie_id')->unsigned()->nullable()->index();
+				$table->bigInteger('geoip_id')->unsigned()->nullable()->index();
+				$table->boolean('is_robot');
+
+				$table->timestamp('created_at')->index();
+				$table->timestamp('updated_at')->index();
+			}
+		);
+	}
+
+	/**
+	 * Reverse the migrations.
+	 *
+	 * @return void
+	 */
+	public function migrateDown()
+	{
+		$this->drop($this->table);
+	}
+
 }

@@ -2,43 +2,46 @@
 
 use PragmaRX\Tracker\Support\Migration;
 
-class CreateTrackerRoutesTable extends Migration
-{
-    /**
-     * Table related to this migration.
-     *
-     * @var string
-     */
-    private $table = 'tracker_routes';
+class CreateTrackerRoutesTable extends Migration {
 
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function migrateUp()
-    {
-        $this->builder->create(
-            $this->table,
-            function ($table) {
-                $table->bigIncrements('id');
+	/**
+	 * Table related to this migration.
+	 *
+	 * @var string
+	 */
 
-                $table->string('name')->index();
-                $table->string('action')->index();
+	private $table = 'tracker_routes';
 
-                $table->timestamp('created_at')->index();
-                $table->timestamp('updated_at')->index();
-            }
-        );
-    }
+	/**
+	 * Run the migrations.
+	 *
+	 * @return void
+	 */
+	public function migrateUp()
+	{
+		$this->builder->create(
+			$this->table,
+			function ($table)
+			{
+				$table->bigIncrements('id');
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function migrateDown()
-    {
-        $this->drop($this->table);
-    }
+				$table->string('name')->index();
+				$table->string('action')->index();
+
+				$table->timestamp('created_at')->index();
+				$table->timestamp('updated_at')->index();
+			}
+		);
+	}
+
+	/**
+	 * Reverse the migrations.
+	 *
+	 * @return void
+	 */
+	public function migrateDown()
+	{
+		$this->drop($this->table);
+	}
+
 }

@@ -4,48 +4,50 @@ namespace PragmaRX\Tracker\Support;
 
 use UAParser\Parser;
 
-class UserAgentParser
-{
-    public $parser;
+class UserAgentParser {
 
-    public $userAgent;
+	public $parser;
 
-    public $operatingSystem;
+	public $userAgent;
 
-    public $device;
+	public $operatingSystem;
 
-    public $originalUserAgent;
+	public $device;
 
-    public function __construct($basePath, $userAgent = null)
-    {
-        if (!$userAgent && isset($_SERVER['HTTP_USER_AGENT'])) {
-            $userAgent = $_SERVER['HTTP_USER_AGENT'];
-        }
+	public $originalUserAgent;
 
-        $this->parser = Parser::create()->parse($userAgent);
+	public function __construct($basePath, $userAgent = null)
+	{
+		if (! $userAgent && isset($_SERVER['HTTP_USER_AGENT']))
+		{
+			$userAgent = $_SERVER['HTTP_USER_AGENT'];
+		}
 
-        $this->userAgent = $this->parser->ua;
+		$this->parser = Parser::create()->parse($userAgent);
 
-        $this->operatingSystem = $this->parser->os;
+		$this->userAgent = $this->parser->ua;
 
-        $this->device = $this->parser->device;
+		$this->operatingSystem = $this->parser->os;
 
-        $this->basePath = $basePath;
+		$this->device = $this->parser->device;
 
-        $this->originalUserAgent = $this->parser->originalUserAgent;
-    }
+		$this->basePath = $basePath;
 
-    public function getOperatingSystemVersion()
-    {
-        return    $this->operatingSystem->major.
-                ($this->operatingSystem->minor !== null ? '.'.$this->operatingSystem->minor : '').
-                ($this->operatingSystem->patch !== null ? '.'.$this->operatingSystem->patch : '');
-    }
+		$this->originalUserAgent = $this->parser->originalUserAgent;
+	}
 
-    public function getUserAgentVersion()
-    {
-        return  $this->userAgent->major.
-                ($this->userAgent->minor !== null ? '.'.$this->userAgent->minor : '').
-                ($this->userAgent->patch !== null ? '.'.$this->userAgent->patch : '');
-    }
+	public function getOperatingSystemVersion()
+	{
+		return 	$this->operatingSystem->major .
+				($this->operatingSystem->minor !== null ? '.'.$this->operatingSystem->minor : '') .
+				($this->operatingSystem->patch !== null ? '.'.$this->operatingSystem->patch : '');
+	}
+
+	public function getUserAgentVersion()
+	{
+		return  $this->userAgent->major .
+				($this->userAgent->minor !== null ? '.'.$this->userAgent->minor : '') .
+				($this->userAgent->patch !== null ? '.'.$this->userAgent->patch : '');
+	}
+
 }

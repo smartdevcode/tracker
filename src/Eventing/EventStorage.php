@@ -3,50 +3,52 @@
  * Created by PhpStorm.
  * User: AntonioCarlos
  * Date: 03/06/2014
- * Time: 18:30.
+ * Time: 18:30
  */
+
 namespace PragmaRX\Tracker\Eventing;
 
-class EventStorage
-{
-    private $events = [];
 
-    private $isOn = true;
+class EventStorage {
 
-    public function logEvent($event, $object)
-    {
-        $this->events[] = [
-            'event'  => $event,
-            'object' => $object,
-        ];
-    }
+	private $events = array();
 
-    public function popAll()
-    {
-        $events = $this->events;
+	private $isOn = true;
 
-        $this->events = [];
+	public function logEvent($event, $object)
+	{
+		$this->events[] = array(
+			'event' => $event,
+			'object' => $object
+		);
+	}
 
-        return $events;
-    }
+	public function popAll()
+	{
+		$events = $this->events;
 
-    public function turnOff()
-    {
-        $this->isOn = false;
-    }
+		$this->events = array();
 
-    public function turnOn()
-    {
-        $this->isOn = true;
-    }
+		return $events;
+	}
 
-    public function isOn()
-    {
-        return $this->isOn;
-    }
+	public function turnOff()
+	{
+		$this->isOn = false;
+	}
 
-    public function isOff()
-    {
-        return !$this->isOn;
-    }
+	public function turnOn()
+	{
+		$this->isOn = true;
+	}
+
+	public function isOn()
+	{
+		return $this->isOn;
+	}
+
+	public function isOff()
+	{
+		return ! $this->isOn;
+	}
 }

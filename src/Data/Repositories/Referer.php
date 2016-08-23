@@ -4,93 +4,96 @@ namespace PragmaRX\Tracker\Data\Repositories;
 
 use PragmaRX\Tracker\Support\RefererParser;
 
-class Referer extends Repository
-{
-    /**
-     * @var RefererParser
-     */
-    private $refererParser;
+class Referer extends Repository {
 
-    /**
-     * @var
-     */
-    private $currentUrl;
+	/**
+	 * @var RefererParser
+	 */
+	private $refererParser;
 
-    /**
-     * @var
-     */
-    private $searchTermModel;
+	/**
+	 * @var
+	 */
+	private $currentUrl;
 
-    /**
-     * Create repository instance.
-     *
-     * @param RefererParser $refererParser
-     */
-    public function __construct($model, $searchTermModel, $currentUrl, RefererParser $refererParser)
-    {
-        parent::__construct($model);
+	/**
+	 * @var
+	 */
+	private $searchTermModel;
 
-        $this->refererParser = $refererParser;
+	/**
+	 * Create repository instance.
+	 *
+	 * @param RefererParser $refererParser
+	 */
+	public function __construct($model, $searchTermModel, $currentUrl, RefererParser $refererParser)
+	{
+		parent::__construct($model);
 
-        $this->currentUrl = $currentUrl;
+		$this->refererParser = $refererParser;
 
-        $this->searchTermModel = $searchTermModel;
-    }
+		$this->currentUrl = $currentUrl;
 
-    /**
-     * @param $refererUrl
-     * @param $host
-     * @param $domain_id
-     *
-     * @return mixed
-     */
-    public function store($refererUrl, $host, $domain_id)
-    {
-        $attributes = [
-            'url'               => $refererUrl,
-            'host'              => $host,
-            'domain_id'         => $domain_id,
-            'medium'            => null,
-            'source'            => null,
-            'search_terms_hash' => null,
-        ];
+		$this->searchTermModel = $searchTermModel;
+	}
 
-        $parsed = $this->refererParser->parse($refererUrl, $this->currentUrl);
+	/**
+	 * @param $refererUrl
+	 * @param $host
+	 * @param $domain_id
+	 * @return mixed
+	 */
+	public function store($refererUrl, $host, $domain_id)
+	{
+		$attributes = array(
+			'url' => $refererUrl,
+			'host' => $host,
+			'domain_id' => $domain_id,
+			'medium' => null,
+			'source' => null,
+			'search_terms_hash' => null
+		);
 
-        if ($parsed->isKnown()) {
-            $attributes['medium'] = $parsed->getMedium();
+		$parsed = $this->refererParser->parse($refererUrl, $this->currentUrl);
 
-            $attributes['source'] = $parsed->getSource();
+		if ($parsed->isKnown())
+		{
+			$attributes['medium'] = $parsed->getMedium();
 
-            $attributes['search_terms_hash'] = sha1($parsed->getSearchTerm());
-        }
+			$attributes['source'] = $parsed->getSource();
 
-        $referer = $this->findOrCreate(
-            $attributes,
-            ['url', 'search_terms_hash']
-        );
+			$attributes['search_terms_hash'] = sha1($parsed->getSearchTerm());
+		}
 
-        $referer = $this->find($referer);
+		$referer = $this->findOrCreate(
+			$attributes,
+			array('url', 'search_terms_hash')
+		);
 
-        if ($parsed->isKnown()) {
-            $this->storeSearchTerms($referer, $parsed);
-        }
+		$referer = $this->find($referer);
 
-        return $referer->id;
-    }
+		if ($parsed->isKnown())
+		{
+			$this->storeSearchTerms($referer, $parsed);
+		}
 
-    private function storeSearchTerms($referer, $parsed)
-    {
-        foreach (explode(' ', $parsed->getSearchTerm()) as $term) {
-            $this->findOrCreate(
-                [
-                    'referer_id'  => $referer->id,
-                    'search_term' => $term,
-                ],
-                ['referer_id', 'search_term'],
-                $created,
-                $this->searchTermModel
-            );
-        }
-    }
+		return $referer->id;
+	}
+
+	private function storeSearchTerms($referer, $parsed)
+	{
+		foreach (explode(' ', $parsed->getSearchTerm()) as $term)
+		{
+			$this->findOrCreate(
+				array(
+					'referer_id' => $referer->id,
+					'search_term' => $term
+				),
+				array('referer_id', 'search_term'),
+				$created,
+				$this->searchTermModel
+			);
+		}
+	}
+
 }

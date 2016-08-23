@@ -2,44 +2,47 @@
 
 use PragmaRX\Tracker\Support\Migration;
 
-class CreateTrackerSqlQueryBindingsParametersTable extends Migration
-{
-    /**
-     * Table related to this migration.
-     *
-     * @var string
-     */
-    private $table = 'tracker_sql_query_bindings_parameters';
+class CreateTrackerSqlQueryBindingsParametersTable extends Migration {
 
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function migrateUp()
-    {
-        $this->builder->create(
-            $this->table,
-            function ($table) {
-                $table->bigIncrements('id');
+	/**
+	 * Table related to this migration.
+	 *
+	 * @var string
+	 */
 
-                $table->bigInteger('sql_query_bindings_id')->unsigned()->nullable();
-                $table->string('name')->nullable()->index();
-                $table->text('value')->nullable();
+	private $table = 'tracker_sql_query_bindings_parameters';
 
-                $table->timestamp('created_at')->index();
-                $table->timestamp('updated_at')->index();
-            }
-        );
-    }
+	/**
+	 * Run the migrations.
+	 *
+	 * @return void
+	 */
+	public function migrateUp()
+	{
+		$this->builder->create(
+			$this->table,
+			function ($table)
+			{
+				$table->bigIncrements('id');
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function migrateDown()
-    {
-        $this->drop($this->table);
-    }
+				$table->bigInteger('sql_query_bindings_id')->unsigned()->nullable();
+				$table->string('name')->nullable()->index();
+				$table->text('value')->nullable();
+
+				$table->timestamp('created_at')->index();
+				$table->timestamp('updated_at')->index();
+			}
+		);
+	}
+
+	/**
+	 * Reverse the migrations.
+	 *
+	 * @return void
+	 */
+	public function migrateDown()
+	{
+		$this->drop($this->table);
+	}
+
 }

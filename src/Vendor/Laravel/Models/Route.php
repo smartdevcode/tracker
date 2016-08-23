@@ -2,17 +2,18 @@
 
 namespace PragmaRX\Tracker\Vendor\Laravel\Models;
 
-class Route extends Base
-{
-    protected $table = 'tracker_routes';
+class Route extends Base {
 
-    protected $fillable = [
-        'name',
-        'action',
-    ];
+	protected $table = 'tracker_routes';
 
-    public function paths()
-    {
-        return $this->hasMany($this->getConfig()->get('route_path_model'));
-    }
+	protected $fillable = array(
+		'name',
+		'action',
+	);
+
+	public function paths()
+	{
+		return $this->hasMany($this->getConfig()->get('route_path_model'));
+	}
+
 }

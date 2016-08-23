@@ -2,18 +2,18 @@
 
 namespace PragmaRX\Tracker\Data\Repositories;
 
-use Illuminate\Cookie\CookieJar;
-use Illuminate\Http\Request;
 use PragmaRX\Support\Config;
+use Illuminate\Http\Request;
 use Ramsey\Uuid\Uuid as UUID;
+use Illuminate\Cookie\CookieJar;
 
-class Cookie extends Repository
-{
-    private $config;
+class Cookie extends Repository {
 
-    private $request;
+	private $config;
 
-    private $cookieJar;
+	private $request;
+
+	private $cookieJar;
 
     public function __construct($model, Config $config, Request $request, CookieJar $cookieJar)
     {
@@ -28,16 +28,19 @@ class Cookie extends Repository
 
     public function getId()
     {
-        if (!$this->config->get('store_cookie_tracker')) {
-            return;
+        if ( ! $this->config->get('store_cookie_tracker'))
+        {
+            return null;
         }
 
-        if (!$cookie = $this->request->cookie($this->config->get('tracker_cookie_name'))) {
+        if ( ! $cookie = $this->request->cookie($this->config->get('tracker_cookie_name')))
+        {
             $cookie = (string) UUID::uuid4();
 
             $this->cookieJar->queue($this->config->get('tracker_cookie_name'), $cookie, 0);
         }
 
-        return $this->findOrCreate(['uuid' => $cookie]);
+        return $this->findOrCreate(array('uuid' => $cookie));
     }
+
 }

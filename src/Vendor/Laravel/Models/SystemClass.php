@@ -2,11 +2,12 @@
 
 namespace PragmaRX\Tracker\Vendor\Laravel\Models;
 
-class SystemClass extends Base
-{
-    protected $table = 'tracker_system_classes';
+class SystemClass extends Base {
 
-    protected $fillable = [
-        'name',
-    ];
+	protected $table = 'tracker_system_classes';
+
+	protected $fillable = array(
+		'name',
+	);
+
 }

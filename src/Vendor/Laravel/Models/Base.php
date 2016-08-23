@@ -2,44 +2,47 @@
 
 namespace PragmaRX\Tracker\Vendor\Laravel\Models;
 
-use Illuminate\Database\Eloquent\Model as Eloquent;
 use Symfony\Component\Console\Application;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 
-class Base extends Eloquent
-{
-    protected $hidden = ['config'];
+class Base extends Eloquent {
 
-    private $config;
+	protected $hidden = ['config'];
 
-    public function __construct(array $attributes = [])
-    {
-        parent::__construct($attributes);
+	private $config;
 
-        $this->setConnection($this->getConfig()->get('connection'));
-    }
+	public function __construct(array $attributes = array())
+	{
+		parent::__construct($attributes);
 
-    public function getConfig()
-    {
-        if ($this->config) {
-            return $this->config;
-        } elseif (isset($GLOBALS['app']) && $GLOBALS['app'] instanceof Application) {
-            return $GLOBALS['app']['tracker.config'];
-        }
+		$this->setConnection($this->getConfig()->get('connection'));
+	}
 
-        return app()->make('tracker.config');
-    }
+	public function getConfig()
+	{
+		if ($this->config)
+		{
+			return $this->config;
+		}
+		elseif (isset($GLOBALS["app"]) && $GLOBALS["app"] instanceof Application)
+		{
+			return $GLOBALS["app"]["tracker.config"];
+		}
 
-    public function setConfig($config)
-    {
-        $this->config = $config;
-    }
+		return app()->make('tracker.config');
+	}
 
-    public function scopePeriod($query, $minutes, $alias = '')
-    {
-        $alias = $alias ? "$alias." : '';
+	public function setConfig($config)
+	{
+		$this->config = $config;
+	}
+
+	public function scopePeriod($query, $minutes, $alias = '')
+	{
+		$alias = $alias ? "$alias." : '';
 
         return $query
             ->where($alias.'updated_at', '>=', $minutes->getStart() ? $minutes->getStart() : 1)
             ->where($alias.'updated_at', '<=', $minutes->getEnd() ? $minutes->getEnd() : 1);
-    }
+	}
 }
