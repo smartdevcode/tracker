@@ -2,6 +2,7 @@
 
 namespace PragmaRX\Tracker\Vendor\Laravel\Middlewares;
 
+use Config;
 use Closure;
 
 class Tracker
@@ -9,13 +10,17 @@ class Tracker
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param \Illuminate\Http\Request $request
+     * @param \Closure                 $next
+     *
      * @return mixed
      */
     public function handle($request, Closure $next)
     {
-        app('tracker')->boot();
+        if (Config::get('tracker.enabled'))
+        {
+            app('tracker')->boot();
+        }
 
         return $next($request);
     }
