@@ -22,23 +22,23 @@ class Cache
 
     public function cachePut($cacheKey, $model)
     {
-        IlluminateCache::put($cacheKey, $model, 10);
+        if ($this->config->get('cache_enabled'))
+        {
+            IlluminateCache::put($cacheKey, $model, 10);
+        }
     }
 
     private function extractAttributes($attributes)
     {
-        if (is_array($attributes) || is_string($attributes))
-        {
+        if (is_array($attributes) || is_string($attributes)) {
             return $attributes;
         }
 
-        if (is_string($attributes) || is_numeric($attributes))
-        {
+        if (is_string($attributes) || is_numeric($attributes)) {
             return (array) $attributes;
         }
 
-        if ($attributes instanceof Model)
-        {
+        if ($attributes instanceof Model) {
             return $attributes->getAttributes();
         }
     }
@@ -46,6 +46,7 @@ class Cache
     /**
      * @param $attributes
      * @param $keys
+     *
      * @return array
      */
     private function extractKeys($attributes, $keys)
@@ -65,11 +66,15 @@ class Cache
 
     /**
      * @param $key
+     *
      * @return array
      */
     public function findCachedWithKey($key)
     {
-        return IlluminateCache::get($key);
+        if ($this->config->get('cache_enabled'))
+        {
+            return IlluminateCache::get($key);
+        }
     }
 
     public function makeKeyAndPut($model, $key)
@@ -81,11 +86,16 @@ class Cache
 
     public function findCached($attributes, $keys, $identifier = null)
     {
+        if (! $this->config->get('cache_enabled'))
+        {
+            return null;
+        }
+
         $key = $this->makeCacheKey($attributes, $keys, $identifier);
 
         return [
             $this->findCachedWithKey($key),
-            $key
+            $key,
         ];
     }
 
@@ -97,10 +107,8 @@ class Cache
 
         $keys = $this->extractKeys($attributes, $keys, $identifier);
 
-        foreach ($keys as $key)
-        {
-            if (isset($attributes[$key]))
-            {
+        foreach ($keys as $key) {
+            if (isset($attributes[$key])) {
                 $cacheKey .= "$key=$attributes[$key];";
             }
         }
