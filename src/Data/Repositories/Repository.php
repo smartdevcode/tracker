@@ -52,10 +52,12 @@ abstract class Repository implements RepositoryInterface
     {
         list($model, $cacheKey) = $this->cache->findCached($id, null, $this->className);
 
-        if (!$model) {
+        if (! $model)
+        {
             $model = $this->newQuery();
 
-            if ($this->relations) {
+            if ($this->relations)
+            {
                 $model->with($this->relations);
             }
 
@@ -109,7 +111,8 @@ abstract class Repository implements RepositoryInterface
     {
         list($model, $cacheKey) = $this->cache->findCached($attributes, $keys, $this->className);
 
-        if (!$model) {
+        if (! $model)
+        {
             $model = $this->newQuery($otherModel);
 
             $keys = $keys ?: array_keys($attributes);
@@ -118,7 +121,7 @@ abstract class Repository implements RepositoryInterface
                 $model = $model->where($key, $attributes[$key]);
             }
 
-            if (!$model = $model->first()) {
+            if (! $model = $model->first()) {
                 $model = $this->create($attributes, $otherModel);
 
                 $created = true;
