@@ -2,7 +2,6 @@
 
 namespace PragmaRX\Tracker\Vendor\Laravel;
 
-use Illuminate\Database\Events\QueryExecuted;
 use PragmaRX\Support\GeoIp\GeoIp;
 use PragmaRX\Support\PhpSession;
 use PragmaRX\Support\ServiceProvider as PragmaRXServiceProvider;
@@ -32,6 +31,7 @@ use PragmaRX\Tracker\Data\Repositories\SystemClass;
 use PragmaRX\Tracker\Data\RepositoryManager;
 use PragmaRX\Tracker\Eventing\EventStorage;
 use PragmaRX\Tracker\Services\Authentication;
+use PragmaRX\Tracker\Support\Cache;
 use PragmaRX\Tracker\Support\CrawlerDetector;
 use PragmaRX\Tracker\Support\Exceptions\Handler as TrackerExceptionHandler;
 use PragmaRX\Tracker\Support\LanguageDetect;
@@ -92,6 +92,8 @@ class ServiceProvider extends PragmaRXServiceProvider
 
         if ($this->getConfig('enabled')) {
             $this->registerAuthentication();
+
+            $this->registerCache();
 
             $this->registerRepositories();
 
@@ -329,6 +331,13 @@ class ServiceProvider extends PragmaRXServiceProvider
         });
     }
 
+    public function registerCache()
+    {
+        $this->app['tracker.cache'] = $this->app->share(function ($app) {
+            return new Cache($app['tracker.config'], $app);
+        });
+    }
+
     private function registerTablesCommand()
     {
         $this->app['tracker.tables.command'] = $this->app->share(function ($app) {
@@ -402,7 +411,7 @@ class ServiceProvider extends PragmaRXServiceProvider
     {
         $me = $this;
 
-        if (! class_exists('Illuminate\Database\Events\QueryExecuted')) {
+        if (!class_exists('Illuminate\Database\Events\QueryExecuted')) {
             $this->app['events']->listen('illuminate.query', function ($query,
                                                                        $bindings,
                                                                        $time,
@@ -423,12 +432,10 @@ class ServiceProvider extends PragmaRXServiceProvider
      * @param $name
      * @param $me
      */
-    function logSqlQuery($query, $bindings = null, $time = null, $connectionName = null)
+    public function logSqlQuery($query, $bindings = null, $time = null, $connectionName = null)
     {
         if ($this->getTracker()->isEnabled()) {
-
-            if ($query instanceof \Illuminate\Database\Events\QueryExecuted)
-            {
+            if ($query instanceof \Illuminate\Database\Events\QueryExecuted) {
                 $bindings = $query->bindings;
                 $time = $query->time;
                 $connectionName = $query->connectionName;
