@@ -123,6 +123,7 @@ class CreateTrackerTablesRelations extends Migration
                 ->onDelete('cascade');
         });
 
+
         $this->builder->table('tracker_events_log', function ($table) {
             $table->foreign('event_id')
                 ->references('id')
@@ -147,6 +148,7 @@ class CreateTrackerTablesRelations extends Migration
                 ->onDelete('cascade');
         });
 
+
         $this->builder->table('tracker_sql_query_bindings_parameters', function ($table) {
             $table->foreign('sql_query_bindings_id', 'tracker_sqlqb_parameters')
                 ->references('id')
@@ -154,6 +156,7 @@ class CreateTrackerTablesRelations extends Migration
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
         });
+
 
         $this->builder->table('tracker_sql_queries_log', function ($table) {
             $table->foreign('log_id')
