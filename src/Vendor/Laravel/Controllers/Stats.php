@@ -39,6 +39,9 @@ class Stats extends Controller
         return $this->showPage($session, $session->getValue('page'));
     }
 
+    /**
+     * @param Session $session
+     */
     public function showPage($session, $page)
     {
         $me = $this;
@@ -50,7 +53,7 @@ class Stats extends Controller
 
     public function visits(Session $session)
     {
-        $datatables_data = 
+        $datatables_data =
         [
             'datatables_ajax_route' => route('tracker.stats.api.visits'),
             'datatables_columns'    => '
@@ -105,19 +108,19 @@ class Stats extends Controller
         $query = Tracker::sessionLog($uuid, false);
 
         $query->select([
-                           'id',
-                           'session_id',
-                           'method',
-                           'path_id',
-                           'query_id',
-                           'route_path_id',
-                           'is_ajax',
-                           'is_secure',
-                           'is_json',
-                           'wants_json',
-                           'error_id',
-                           'updated_at',
-                       ]);
+                            'id',
+                            'session_id',
+                            'method',
+                            'path_id',
+                            'query_id',
+                            'route_path_id',
+                            'is_ajax',
+                            'is_secure',
+                            'is_json',
+                            'wants_json',
+                            'error_id',
+                            'updated_at',
+                        ]);
 
         return Datatables::of($query)
             ->edit_column('route_name', function ($row) {
@@ -202,12 +205,12 @@ class Stats extends Controller
         $query = Tracker::errors($session->getMinutes(), false);
 
         $query->select([
-                           'id',
-                           'error_id',
-                           'session_id',
-                           'path_id',
-                           'updated_at',
-                       ]);
+                            'id',
+                            'error_id',
+                            'session_id',
+                            'path_id',
+                            'updated_at',
+                        ]);
 
         return Datatables::of($query)
                 ->edit_column('updated_at', function ($row) {
@@ -244,18 +247,18 @@ class Stats extends Controller
         $query = Tracker::sessions($session->getMinutes(), false);
 
         $query->select([
-               'id',
-               'uuid',
-               'user_id',
-               'device_id',
-               'agent_id',
-               'client_ip',
-               'referer_id',
-               'cookie_id',
-               'geoip_id',
-               'language_id',
-               'is_robot',
-               'updated_at',
+                'id',
+                'uuid',
+                'user_id',
+                'device_id',
+                'agent_id',
+                'client_ip',
+                'referer_id',
+                'cookie_id',
+                'geoip_id',
+                'language_id',
+                'is_robot',
+                'updated_at',
         ]);
 
         return Datatables::of($query)

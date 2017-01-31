@@ -15,6 +15,8 @@ class Session extends Repository
 
     private $sessionInfo;
 
+    protected $relations = ['device', 'user', 'log', 'language', 'agent', 'referer', 'geoIp', 'cookie'];
+
     public function __construct($model, Config $config, PhpSession $session)
     {
         $this->config = $config;
@@ -26,7 +28,15 @@ class Session extends Repository
 
     public function findByUuid($uuid)
     {
-        return $this->newQuery()->where('uuid', $uuid)->first();
+        list($model, $cacheKey) = $this->cache->findCached($uuid, 'uuid', 'PragmaRX\Tracker\Vendor\Laravel\Models\Session');
+
+        if (!$model) {
+            $model = $this->newQuery()->where('uuid', $uuid)->with($this->relations)->first();
+
+            $this->cache->cachePut($cacheKey, $model);
+        }
+
+        return $model;
     }
 
     public function getCurrentId($sessionInfo)
@@ -100,9 +110,19 @@ class Session extends Repository
 
     private function sessionIsKnown()
     {
-        return $this->session->has($this->getSessionKey())
-                && $this->getSessionData('uuid') == $this->getSystemSessionId()
-                && $this->where('uuid', $this->getSessionData('uuid'))->first();
+        if (!$this->session->has($this->getSessionKey())) {
+            return false;
+        }
+
+        if (!$this->getSessionData('uuid') == $this->getSystemSessionId()) {
+            return false;
+        }
+
+        if (!$this->findByUuid($this->getSessionData('uuid'))) {
+            return false;
+        }
+
+        return true;
     }
 
     private function ensureSessionDataIsComplete()
@@ -171,6 +191,9 @@ class Session extends Repository
         return $this->sessionInfo;
     }
 
+    /**
+     * @param string $variable
+     */
     private function getSessionData($variable = null)
     {
         $data = $this->session->get($this->getSessionKey());
@@ -194,13 +217,7 @@ class Session extends Repository
     {
         return $this
                 ->newQuery()
-                ->with('user')
-                ->with('device')
-                ->with('agent')
-                ->with('referer')
-                ->with('geoIp')
-                ->with('log')
-                ->with('cookie')
+                ->with($this->relations)
                 ->orderBy('updated_at', 'desc');
     }
 
@@ -209,14 +226,26 @@ class Session extends Repository
         return $this->getSessions()->get();
     }
 
-    public function last($minutes, $results)
+    public function last($minutes, $returnResults)
     {
         $query = $this
-                    ->getSessions()
-                    ->period($minutes);
+            ->getSessions()
+            ->period($minutes);
 
-        if ($results) {
-            return $query->get();
+        if ($returnResults) {
+            $cacheKey = 'last-sessions';
+
+            $result = $this->cache->findCachedWithKey($cacheKey);
+
+            if (!$result) {
+                $result = $query->get();
+
+                $this->cache->cachePut($cacheKey, $result, 1); // cache only for 1 minute
+
+                return $result;
+            }
+
+            return $result;
         }
 
         return $query;

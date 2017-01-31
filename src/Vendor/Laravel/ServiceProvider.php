@@ -32,6 +32,7 @@ use PragmaRX\Tracker\Data\Repositories\SystemClass;
 use PragmaRX\Tracker\Data\RepositoryManager;
 use PragmaRX\Tracker\Eventing\EventStorage;
 use PragmaRX\Tracker\Services\Authentication;
+use PragmaRX\Tracker\Support\Cache;
 use PragmaRX\Tracker\Support\CrawlerDetector;
 use PragmaRX\Tracker\Support\Exceptions\Handler as TrackerExceptionHandler;
 use PragmaRX\Tracker\Support\LanguageDetect;
@@ -93,6 +94,8 @@ class ServiceProvider extends PragmaRXServiceProvider
         if ($this->getConfig('enabled')) {
             $this->registerAuthentication();
 
+            $this->registerCache();
+
             $this->registerRepositories();
 
             $this->registerTracker();
@@ -118,7 +121,7 @@ class ServiceProvider extends PragmaRXServiceProvider
     /**
      * Get the services provided by the provider.
      *
-     * @return array
+     * @return string[]
      */
     public function provides()
     {
@@ -334,6 +337,13 @@ class ServiceProvider extends PragmaRXServiceProvider
         });
     }
 
+    public function registerCache()
+    {
+        $this->app['tracker.cache'] = $this->app->share(function ($app) {
+            return new Cache($app['tracker.config'], $app);
+        });
+    }
+
     private function registerTablesCommand()
     {
         $this->app->singleton('tracker.tables.command', function ($app) {
@@ -380,6 +390,9 @@ class ServiceProvider extends PragmaRXServiceProvider
         }
     }
 
+    /**
+     * @param string $modelName
+     */
     private function instantiateModel($modelName)
     {
         $model = $this->getConfig($modelName);
@@ -409,9 +422,9 @@ class ServiceProvider extends PragmaRXServiceProvider
 
         if (!class_exists('Illuminate\Database\Events\QueryExecuted')) {
             $this->app['events']->listen('illuminate.query', function ($query,
-                                                                       $bindings,
-                                                                       $time,
-                                                                       $name) use ($me) {
+                                                                        $bindings,
+                                                                        $time,
+                                                                        $name) use ($me) {
                 $me->logSqlQuery($query, $bindings, $time, $name);
             });
         } else {
@@ -583,6 +596,9 @@ class ServiceProvider extends PragmaRXServiceProvider
         });
     }
 
+    /**
+     * @return Tracker
+     */
     public function getTracker()
     {
         if (!$this->tracker) {

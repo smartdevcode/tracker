@@ -13,10 +13,10 @@ class AddTrackerLanguageForeignKeyToSessions extends Migration
     {
         $this->builder->table('tracker_sessions', function ($table) {
             $table->foreign('language_id')
-                  ->references('id')
-                  ->on('tracker_languages')
-                  ->onUpdate('cascade')
-                  ->onDelete('cascade');
+                    ->references('id')
+                    ->on('tracker_languages')
+                    ->onUpdate('cascade')
+                    ->onDelete('cascade');
         });
     }
 
