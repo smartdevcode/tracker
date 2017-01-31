@@ -8,11 +8,6 @@ return [
     'enabled' => false,
 
     /*
-     * Enable cache?
-     */
-    'cache_enabled' => true,
-
-    /*
      * Deffer booting for middleware use
      */
     'use_middleware' => false,

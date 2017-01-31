@@ -64,7 +64,7 @@ class Tracker
 
     public function checkCurrentUser()
     {
-        if (!$this->sessionData['user_id'] && $user_id = $this->getUserId()) {
+        if (!$this->getSessionData()['user_id'] && $user_id = $this->getUserId()) {
             return true;
         }
 
@@ -235,9 +235,6 @@ class Tracker
             : null;
     }
 
-    /**
-     * @param \Exception $exception
-     */
     public function handleException($exception)
     {
         if ($this->config->get('log_enabled')) {

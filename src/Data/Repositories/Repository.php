@@ -14,13 +14,6 @@ abstract class Repository implements RepositoryInterface
 
     protected $className;
 
-    protected $relations;
-
-    /**
-     * @var \PragmaRX\Tracker\Support\Cache
-     */
-    protected $cache;
-
     public function __construct($model)
     {
         $this->model = $model;
@@ -28,8 +21,6 @@ abstract class Repository implements RepositoryInterface
         $this->className = get_class($model);
 
         $this->connection = $this->getModel()->getConnectionName();
-
-        $this->cache = app('tracker.cache');
     }
 
     public function where($key, $operation, $value = null)
@@ -50,24 +41,13 @@ abstract class Repository implements RepositoryInterface
 
     public function find($id)
     {
-        list($model, $cacheKey) = $this->cache->findCached($id, null, $this->className);
+        $this->result = $this->newQuery()->find($id);
 
-        if (!$model) {
-            $model = $this->newQuery();
-
-            if ($this->relations) {
-                $model->with($this->relations);
-            }
-
-            if ($model = $model->find($id)) {
-                $this->cache->cachePut($cacheKey, $model);
-            }
+        if ($this->result) {
+            $this->model = $this->result;
         }
 
-        $this->model = $model;
-        $this->result = $model;
-
-        return $model;
+        return $this->result;
     }
 
     public function create($attributes, $model = null)
@@ -90,9 +70,6 @@ abstract class Repository implements RepositoryInterface
         return $this->getAttribute('id');
     }
 
-    /**
-     * @param string $attribute
-     */
     public function getAttribute($attribute)
     {
         return $this->result ? $this->result->{$attribute} : null;
@@ -108,34 +85,25 @@ abstract class Repository implements RepositoryInterface
         return $this->result->save();
     }
 
-    /**
-     * @param string[] $keys
-     */
     public function findOrCreate($attributes, $keys = null, &$created = false, $otherModel = null)
     {
-        list($model, $cacheKey) = $this->cache->findCached($attributes, $keys, $this->className);
+        $model = $this->newQuery($otherModel);
 
-        if (!$model) {
-            $model = $this->newQuery($otherModel);
+        $keys = $keys ?: array_keys($attributes);
 
-            $keys = $keys ?: array_keys($attributes);
+        foreach ($keys as $key) {
+            $model = $model->where($key, $attributes[$key]);
+        }
 
-            foreach ($keys as $key) {
-                $model = $model->where($key, $attributes[$key]);
-            }
+        if (!$model = $model->first()) {
+            $model = $this->create($attributes, $otherModel);
 
-            if (!$model = $model->first()) {
-                $model = $this->create($attributes, $otherModel);
-
-                $created = true;
-            }
-
-            $this->cache->cachePut($cacheKey, $model);
+            $created = true;
         }
 
         $this->model = $model;
 
-        return $model->id;
+        return  $model->id;
     }
 
     public function getModel()

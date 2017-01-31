@@ -1,40 +1,14 @@
 # Laravel Stats Tracker Upgrading Guide
 
-## from 2.0.x to 3.0.0 
-
-Add cache_enabled key to your config\tracker.php:
-
-    /*
-     * Enable cache?
-     */
-    'cache_enabled' => true,
-
 ## from 2.0.x to 2.0.4 or 2.0.9 
 
 ####Run Artisan tracker:tables command
 
-    php artisan tracker:tables
+php artisan tracker:tables
 
 ####Migrate
 
-    php artisan migrate
-
-####If you already have executed and get the error "1215 Cannot add foreign key constraint"
-
-You'll have to upgrade your migrations:
-
-1 - Rollback the last one: `php artisan tracker:tables`
-
-2 - Delete the following files from your database\migrations:
-
-    2015_11_23_311097_create_tracker_languages_table.php    
-    2015_11_23_311098_add_language_id_column_to_sessions.php    
-    2015_11_23_311099_add_tracker_language_foreign_key_to_sessions.php  
-    2015_11_23_311100_add_nullable_to_tracker_error.php
-
-3 - Run `php artisan tracker:tables` to upgrade them
-
-4 - Migrate: `php artisan migrate`
+php artisan migrate
 
 ## to 0.6.0
 

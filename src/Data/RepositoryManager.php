@@ -5,6 +5,7 @@ namespace PragmaRX\Tracker\Data;
 use Illuminate\Routing\Router as IlluminateRouter;
 use Illuminate\Session\Store as IlluminateSession;
 use PragmaRX\Support\Config;
+use PragmaRX\Support\GeoIp\GeoIp;
 use PragmaRX\Tracker\Data\Repositories\Agent;
 use PragmaRX\Tracker\Data\Repositories\Connection;
 use PragmaRX\Tracker\Data\Repositories\Cookie;
@@ -142,9 +143,6 @@ class RepositoryManager implements RepositoryManagerInterface
      */
     private $languageDetect;
 
-    /**
-     * @param \PragmaRX\Tracker\Support\UserAgentParser|null $userAgentParser
-     */
     public function __construct(
         GeoIP $geoIp,
         MobileDetect $mobileDetect,
@@ -524,9 +522,6 @@ class RepositoryManager implements RepositoryManagerInterface
         return $route->currentRouteAction();
     }
 
-    /**
-     * @param string $name
-     */
     private function getRouteId($name, $action)
     {
         return $this->routeRepository->findOrCreate(
@@ -563,9 +558,6 @@ class RepositoryManager implements RepositoryManagerInterface
         return '/'.$route->current()->getUri();
     }
 
-    /**
-     * @param bool $created
-     */
     private function getRoutePath($route_id, $path, &$created = null)
     {
         return $this->routePathRepository->findOrCreate(

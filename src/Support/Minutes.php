@@ -68,14 +68,6 @@ class Minutes
     /**
      * @return mixed
      */
-    public function getMinutes()
-    {
-        return $this->minutes;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getStart()
     {
         return $this->start;

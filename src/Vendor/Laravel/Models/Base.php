@@ -29,13 +29,6 @@ class Base extends Eloquent
         return app()->make('tracker.config');
     }
 
-    public function save(array $options = [])
-    {
-        parent::save($options);
-
-        app('tracker.cache')->makeKeyAndPut($this, $this->getKeyName());
-    }
-
     public function setConfig($config)
     {
         $this->config = $config;

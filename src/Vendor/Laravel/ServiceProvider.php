@@ -19,6 +19,7 @@ use PragmaRX\Tracker\Data\Repositories\Log;
 use PragmaRX\Tracker\Data\Repositories\Path;
 use PragmaRX\Tracker\Data\Repositories\Query;
 use PragmaRX\Tracker\Data\Repositories\QueryArgument;
+use PragmaRX\Tracker\Data\Repositories\Referer;
 use PragmaRX\Tracker\Data\Repositories\Route;
 use PragmaRX\Tracker\Data\Repositories\RoutePath;
 use PragmaRX\Tracker\Data\Repositories\RoutePathParameter;
@@ -31,7 +32,6 @@ use PragmaRX\Tracker\Data\Repositories\SystemClass;
 use PragmaRX\Tracker\Data\RepositoryManager;
 use PragmaRX\Tracker\Eventing\EventStorage;
 use PragmaRX\Tracker\Services\Authentication;
-use PragmaRX\Tracker\Support\Cache;
 use PragmaRX\Tracker\Support\CrawlerDetector;
 use PragmaRX\Tracker\Support\Exceptions\Handler as TrackerExceptionHandler;
 use PragmaRX\Tracker\Support\LanguageDetect;
@@ -93,8 +93,6 @@ class ServiceProvider extends PragmaRXServiceProvider
         if ($this->getConfig('enabled')) {
             $this->registerAuthentication();
 
-            $this->registerCache();
-
             $this->registerRepositories();
 
             $this->registerTracker();
@@ -120,7 +118,7 @@ class ServiceProvider extends PragmaRXServiceProvider
     /**
      * Get the services provided by the provider.
      *
-     * @return string[]
+     * @return array
      */
     public function provides()
     {
@@ -135,7 +133,7 @@ class ServiceProvider extends PragmaRXServiceProvider
      */
     private function registerTracker()
     {
-        $this->app['tracker'] = $this->app->share(function ($app) {
+        $this->app->singleton('tracker', function ($app) {
             $app['tracker.loaded'] = true;
 
             return new Tracker(
@@ -151,7 +149,7 @@ class ServiceProvider extends PragmaRXServiceProvider
 
     public function registerRepositories()
     {
-        $this->app['tracker.repositories'] = $this->app->share(function ($app) {
+        $this->app->singleton('tracker.repositories', function ($app) {
             try {
                 $uaParser = new UserAgentParser($app->make('path.base'));
             } catch (\Exception $exception) {
@@ -287,7 +285,12 @@ class ServiceProvider extends PragmaRXServiceProvider
 
                 new Domain($domainModel),
 
-                $app->make('\PragmaRX\Tracker\Data\Repositories\Referer', [$refererModel, $refererSearchTermModel, $this->getAppUrl()]),
+                new Referer(
+                    $refererModel,
+                    $refererSearchTermModel,
+                    $this->getAppUrl(),
+                    $app->make('PragmaRX\Tracker\Support\RefererParser')
+                ),
 
                 $routeRepository,
 
@@ -326,21 +329,14 @@ class ServiceProvider extends PragmaRXServiceProvider
 
     public function registerAuthentication()
     {
-        $this->app['tracker.authentication'] = $this->app->share(function ($app) {
+        $this->app->singleton('tracker.authentication', function ($app) {
             return new Authentication($app['tracker.config'], $app);
-        });
-    }
-
-    public function registerCache()
-    {
-        $this->app['tracker.cache'] = $this->app->share(function ($app) {
-            return new Cache($app['tracker.config'], $app);
         });
     }
 
     private function registerTablesCommand()
     {
-        $this->app['tracker.tables.command'] = $this->app->share(function ($app) {
+        $this->app->singleton('tracker.tables.command', function ($app) {
             return new TablesCommand();
         });
     }
@@ -384,9 +380,6 @@ class ServiceProvider extends PragmaRXServiceProvider
         }
     }
 
-    /**
-     * @param string $modelName
-     */
     private function instantiateModel($modelName)
     {
         $model = $this->getConfig($modelName);
@@ -416,9 +409,9 @@ class ServiceProvider extends PragmaRXServiceProvider
 
         if (!class_exists('Illuminate\Database\Events\QueryExecuted')) {
             $this->app['events']->listen('illuminate.query', function ($query,
-                                                                        $bindings,
-                                                                        $time,
-                                                                        $name) use ($me) {
+                                                                       $bindings,
+                                                                       $time,
+                                                                       $name) use ($me) {
                 $me->logSqlQuery($query, $bindings, $time, $name);
             });
         } else {
@@ -453,7 +446,7 @@ class ServiceProvider extends PragmaRXServiceProvider
     {
         $me = $this;
 
-        $this->app['tracker.events'] = $this->app->share(function ($app) {
+        $this->app->singleton('tracker.events', function ($app) {
             return new EventStorage();
         });
 
@@ -467,10 +460,11 @@ class ServiceProvider extends PragmaRXServiceProvider
             $me->app['tracker.events']->turnOff();
 
             // Log events even before application is ready
-            $me->app['tracker.events']->logEvent(
-                $me->app['events']->firing(),
-                $object
-            );
+            // $me->app['tracker.events']->logEvent(
+            //    $me->app['events']->firing(),
+            //    $object
+            // );
+            // TODO: we have to investigate a way of doing this
 
             // Can only send events to database after application is ready
             if (isset($me->app['tracker.loaded'])) {
@@ -579,31 +573,16 @@ class ServiceProvider extends PragmaRXServiceProvider
         $me = $this;
 
         $this->app['events']->listen('router.before', function ($object = null) use ($me) {
-
-            // get auth bindings to check
-            $bindings = $me->getConfig('authentication_ioc_binding');
-
-            // check if all bindings are resolved
-            $checked_bindings = array_map(function ($abstract) use ($me) {
-                return $me->app->resolved($abstract);
-            }, $bindings);
-
-            $all_bindings_resolved =
-                (!in_array(false, $checked_bindings, true)) ?: false;
-
             if ($me->tracker &&
                 !$me->userChecked &&
                 $me->getConfig('log_users') &&
-                $all_bindings_resolved
+                $me->app->resolved($me->getConfig('authentication_ioc_binding'))
             ) {
                 $me->userChecked = $me->getTracker()->checkCurrentUser();
             }
         });
     }
 
-    /**
-     * @return Tracker
-     */
     public function getTracker()
     {
         if (!$this->tracker) {
