@@ -565,7 +565,7 @@ class RepositoryManager implements RepositoryManagerInterface
             return $name;
         }
 
-        return '/'.$route->current()->uri();
+        return '/'.$route->current()->getUri();
     }
 
     /**
