@@ -56,9 +56,9 @@ class ServiceProvider extends PragmaRXServiceProvider
      */
     protected $defer = false;
 
-    protected $userChecked = false;
+    private $userChecked = false;
 
-    protected $tracker;
+    private $tracker;
 
     /**
      * Bootstrap the application events.
@@ -132,7 +132,7 @@ class ServiceProvider extends PragmaRXServiceProvider
      *
      * @return void
      */
-    protected function registerTracker()
+    private function registerTracker()
     {
         $this->app->singleton('tracker', function ($app) {
             $app['tracker.loaded'] = true;
@@ -342,14 +342,14 @@ class ServiceProvider extends PragmaRXServiceProvider
         });
     }
 
-    protected function registerTablesCommand()
+    private function registerTablesCommand()
     {
         $this->app->singleton('tracker.tables.command', function ($app) {
             return new TablesCommand();
         });
     }
 
-    protected function registerExecutionCallback()
+    private function registerExecutionCallback()
     {
         $me = $this;
 
@@ -363,7 +363,7 @@ class ServiceProvider extends PragmaRXServiceProvider
         });
     }
 
-    protected function registerErrorHandler()
+    private function registerErrorHandler()
     {
         if ($this->getConfig('log_exceptions')) {
             if (isLaravel5()) {
@@ -391,7 +391,7 @@ class ServiceProvider extends PragmaRXServiceProvider
     /**
      * @param string $modelName
      */
-    protected function instantiateModel($modelName)
+    private function instantiateModel($modelName)
     {
         $model = $this->getConfig($modelName);
 
@@ -414,7 +414,7 @@ class ServiceProvider extends PragmaRXServiceProvider
         return $model;
     }
 
-    protected function registerSqlQueryLogWatcher()
+    private function registerSqlQueryLogWatcher()
     {
         $me = $this;
 
@@ -453,7 +453,7 @@ class ServiceProvider extends PragmaRXServiceProvider
         }
     }
 
-    protected function registerGlobalEventLogger()
+    private function registerGlobalEventLogger()
     {
         $me = $this;
 
@@ -487,7 +487,7 @@ class ServiceProvider extends PragmaRXServiceProvider
         });
     }
 
-    protected function loadRoutes()
+    private function loadRoutes()
     {
         if (!$this->getConfig('stats_panel_enabled')) {
             return false;
@@ -538,7 +538,7 @@ class ServiceProvider extends PragmaRXServiceProvider
         });
     }
 
-    protected function registerDatatables()
+    private function registerDatatables()
     {
         $this->registerServiceProvider('Bllim\Datatables\DatatablesServiceProvider');
 
@@ -558,7 +558,7 @@ class ServiceProvider extends PragmaRXServiceProvider
     /**
      * Boot & Track.
      */
-    protected function bootTracker()
+    private function bootTracker()
     {
         $this->getTracker()->boot();
     }
@@ -566,7 +566,7 @@ class ServiceProvider extends PragmaRXServiceProvider
     /**
      * Register global view composers.
      */
-    protected function registerGlobalViewComposers()
+    private function registerGlobalViewComposers()
     {
         $me = $this;
 
@@ -579,7 +579,7 @@ class ServiceProvider extends PragmaRXServiceProvider
         });
     }
 
-    protected function registerUserCheckCallback()
+    private function registerUserCheckCallback()
     {
         $me = $this;
 
@@ -611,7 +611,7 @@ class ServiceProvider extends PragmaRXServiceProvider
         return __DIR__.'/../..';
     }
 
-    protected function getAppUrl()
+    private function getAppUrl()
     {
         return $this->app['request']->url();
     }
