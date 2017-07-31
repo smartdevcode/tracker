@@ -403,8 +403,9 @@ class Tracker
     public function allowConsole()
     {
         return
-            (!$this->laravel->runningInConsole()) ||
-            $this->config->get('console_log_enabled', false);
+            (! $this->laravel->runningInConsole()) ||
+            $this->config->get('console_log_enabled', false)
+        ;
     }
 
     public function parserIsAvailable()
