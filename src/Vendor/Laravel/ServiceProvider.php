@@ -31,7 +31,6 @@ use PragmaRX\Tracker\Data\Repositories\SqlQueryLog;
 use PragmaRX\Tracker\Data\Repositories\SystemClass;
 use PragmaRX\Tracker\Data\RepositoryManager;
 use PragmaRX\Tracker\Eventing\EventStorage;
-use PragmaRX\Tracker\Repositories\Message as MessageRepository;
 use PragmaRX\Tracker\Services\Authentication;
 use PragmaRX\Tracker\Support\Cache;
 use PragmaRX\Tracker\Support\CrawlerDetector;
@@ -42,6 +41,7 @@ use PragmaRX\Tracker\Support\UserAgentParser;
 use PragmaRX\Tracker\Tracker;
 use PragmaRX\Tracker\Vendor\Laravel\Artisan\Tables as TablesCommand;
 use PragmaRX\Tracker\Vendor\Laravel\Artisan\UpdateGeoIp;
+use PragmaRX\Tracker\Repositories\Message as MessageRepository;
 
 class ServiceProvider extends PragmaRXServiceProvider
 {
