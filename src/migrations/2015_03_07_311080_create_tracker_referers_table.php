@@ -27,9 +27,8 @@ class CreateTrackerReferersTable extends Migration
                 $table->string('url')->index();
                 $table->string('host');
 
-                $table->timestamps();
-                $table->index('created_at');
-                $table->index('updated_at');
+                $table->timestamp('created_at')->index();
+                $table->timestamp('updated_at')->index();
             }
         );
     }

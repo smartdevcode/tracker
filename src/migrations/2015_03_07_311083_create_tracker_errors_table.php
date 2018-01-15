@@ -26,9 +26,8 @@ class CreateTrackerErrorsTable extends Migration
                 $table->string('code')->index();
                 $table->string('message')->index();
 
-                $table->timestamps();
-                $table->index('created_at');
-                $table->index('updated_at');
+                $table->timestamp('created_at')->index();
+                $table->timestamp('updated_at')->index();
             }
         );
     }

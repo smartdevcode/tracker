@@ -28,9 +28,8 @@ class CreateTrackerLanguagesTable extends Migration
 
                 $table->unique(['preference', 'language-range']);
 
-                $table->timestamps();
-                $table->index('created_at');
-                $table->index('updated_at');
+                $table->timestamp('created_at')->index();
+                $table->timestamp('updated_at')->index();
             }
         );
     }

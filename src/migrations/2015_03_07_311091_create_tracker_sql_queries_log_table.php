@@ -26,9 +26,8 @@ class CreateTrackerSqlQueriesLogTable extends Migration
                 $table->bigInteger('log_id')->unsigned()->index();
                 $table->bigInteger('sql_query_id')->unsigned()->index();
 
-                $table->timestamps();
-                $table->index('created_at');
-                $table->index('updated_at');
+                $table->timestamp('created_at')->index();
+                $table->timestamp('updated_at')->index();
             }
         );
     }

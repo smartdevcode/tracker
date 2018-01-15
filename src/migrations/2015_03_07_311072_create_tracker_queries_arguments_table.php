@@ -27,9 +27,8 @@ class CreateTrackerQueriesArgumentsTable extends Migration
                 $table->string('argument')->index();
                 $table->string('value')->index();
 
-                $table->timestamps();
-                $table->index('created_at');
-                $table->index('updated_at');
+                $table->timestamp('created_at')->index();
+                $table->timestamp('updated_at')->index();
             }
         );
     }
