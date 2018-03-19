@@ -19,7 +19,7 @@ class Tables extends Base
     protected $description = 'Create the migrations for Tracker database tables and columns';
 
     /**
-     * Execute the command (Compatibility with Laravel 5.5).
+     * Execute the command.
      *
      * @return void
      */
@@ -43,12 +43,6 @@ class Tables extends Base
 
                 $this->info("Migration created: $destination");
             }
-        }
-
-        if (isLaravel5()) {
-            $this->call('optimize');
-        } else {
-            $this->call('dump-autoload');
         }
     }
 
