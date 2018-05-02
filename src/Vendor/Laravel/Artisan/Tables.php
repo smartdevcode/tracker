@@ -23,16 +23,6 @@ class Tables extends Base
      *
      * @return void
      */
-    public function handle()
-    {
-        $this->fire();
-    }
-
-    /**
-     * Execute the command.
-     *
-     * @return void
-     */
     public function fire()
     {
         $files = $this->laravel->make('files');
@@ -43,6 +33,12 @@ class Tables extends Base
 
                 $this->info("Migration created: $destination");
             }
+        }
+
+        if (isLaravel5()) {
+            $this->call('optimize');
+        } else {
+            $this->call('dump-autoload');
         }
     }
 

@@ -26,9 +26,8 @@ class CreateTrackerRoutesTable extends Migration
                 $table->string('name')->index();
                 $table->string('action')->index();
 
-                $table->timestamps();
-                $table->index('created_at');
-                $table->index('updated_at');
+                $table->timestamp('created_at')->index();
+                $table->timestamp('updated_at')->index();
             }
         );
     }

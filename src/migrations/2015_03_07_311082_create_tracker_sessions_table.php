@@ -33,9 +33,8 @@ class CreateTrackerSessionsTable extends Migration
                 $table->bigInteger('geoip_id')->unsigned()->nullable()->index();
                 $table->boolean('is_robot');
 
-                $table->timestamps();
-                $table->index('created_at');
-                $table->index('updated_at');
+                $table->timestamp('created_at')->index();
+                $table->timestamp('updated_at')->index();
             }
         );
     }

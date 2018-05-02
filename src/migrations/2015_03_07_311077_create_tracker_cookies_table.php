@@ -25,9 +25,8 @@ class CreateTrackerCookiesTable extends Migration
 
                 $table->string('uuid')->unique();
 
-                $table->timestamps();
-                $table->index('created_at');
-                $table->index('updated_at');
+                $table->timestamp('created_at')->index();
+                $table->timestamp('updated_at')->index();
             }
         );
     }

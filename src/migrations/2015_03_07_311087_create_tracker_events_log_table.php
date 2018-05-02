@@ -27,9 +27,8 @@ class CreateTrackerEventsLogTable extends Migration
                 $table->bigInteger('class_id')->unsigned()->nullable()->index();
                 $table->bigInteger('log_id')->unsigned()->index();
 
-                $table->timestamps();
-                $table->index('created_at');
-                $table->index('updated_at');
+                $table->timestamp('created_at')->index();
+                $table->timestamp('updated_at')->index();
             }
         );
     }

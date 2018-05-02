@@ -28,9 +28,8 @@ class CreateTrackerSqlQueriesTable extends Migration
                 $table->double('time')->index();
                 $table->integer('connection_id')->unsigned();
 
-                $table->timestamps();
-                $table->index('created_at');
-                $table->index('updated_at');
+                $table->timestamp('created_at')->index();
+                $table->timestamp('updated_at')->index();
             }
         );
     }

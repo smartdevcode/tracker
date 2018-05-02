@@ -40,7 +40,7 @@ Storing user tracking information, on indexed and normalized database tables, wa
 
 ## Usage
 
-As soon as you install and enable it, Tracker will start storing all information you tell it to, then you can in your application use the Tracker Facade to access everything. Here are some of the methods and relationships available:
+As soon as you install and enable it, Tracker will start storing all information you tell it to, then you can in your application use the Tracker Facade to access everything. Here are some of the methods and relatioships available:
 
 #### Current Session/Visitor
 
@@ -502,7 +502,7 @@ For Laravel 4+ please use version 2.0.10.
 #### Add the service provider to your app/config/app.php:
 
 ```php
- PragmaRX\Tracker\Vendor\Laravel\ServiceProvider::class,
+'PragmaRX\Tracker\Vendor\Laravel\ServiceProvider',
 ```
 
 #### Add the alias to the facade on your app/config/app.php:
@@ -630,30 +630,14 @@ Only admins can view the stats, so if you don't have an is_admin attribute on yo
 
 ```php
 public function getIsAdminAttribute()
-{
-    return true;
-}
+    {
+        return true;
+    }
 ```
 
 It can be 'admin', 'is_admin', 'root' or 'is_root'.
 
 ## Troubleshooting
-
-### Is everything enabled?
-
-Make sure Tracker is enabled in the config file. Usually this is the source of most problems.
-
-### Tail your laravel.log file
-
-``` php
-tail -f storage/logs/laravel.log
-``` 
-
-Usually non-trackable IP addresses and other messages will appear in the log:
-
-```
-[2018-03-19 21:28:08] local.WARNING: TRACKER (unable to track item): 127.0.0.1 is not trackable.
-```
 
 ### SQLSTATE[42000]: Syntax error or access violation: 1067 Invalid default value for 'field name' 
 
@@ -686,7 +670,6 @@ You may need to change your Tracker database connection configuration to
 ## Author
 
 [Antonio Carlos Ribeiro](http://twitter.com/iantonioribeiro)
-[All Contributors](https://github.com/antonioribeiro/tracker/graphs/contributors)
 
 ## License
 
@@ -695,3 +678,4 @@ Tracker is licensed under the BSD 3-Clause License - see the `LICENSE` file for 
 ## Contributing
 
 Pull requests and issues are more than welcome.
+

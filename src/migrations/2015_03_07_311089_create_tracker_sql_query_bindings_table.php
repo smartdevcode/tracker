@@ -26,9 +26,8 @@ class CreateTrackerSqlQueryBindingsTable extends Migration
                 $table->string('sha1', 40)->index();
                 $table->text('serialized');
 
-                $table->timestamps();
-                $table->index('created_at');
-                $table->index('updated_at');
+                $table->timestamp('created_at')->index();
+                $table->timestamp('updated_at')->index();
             }
         );
     }
