@@ -36,13 +36,14 @@ class Authentication
         foreach ($this->getAuthentication() as $auth) {
             foreach ($guards as $guard) {
                 // Call guard() if not null
-                if ($guard && $guard != 'null') {
+                if ($guards != 'null') {
                     $auth = $auth->guard($guard);
-                }                
-            }
-            if (is_callable([$auth, $method], true, $callable_name)) {
-                if ($data = $auth->$method()) {
-                    return $data;
+                }
+
+                if (is_callable([$auth, $method], true, $callable_name)) {
+                    if ($data = $auth->$method()) {
+                        return $data;
+                    }
                 }
             }
         }
